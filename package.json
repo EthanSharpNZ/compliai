@@ -1,0 +1,7 @@
+{
+  "name": "compliai",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "CompliAI — free Site-Specific Safety Plan (SSSP) builder for NZ trades."
+}

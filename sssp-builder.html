@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<title>CompliAI — SSSP Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3F3EF; --surface:#FFFFFF; --ink:#1A1B17; --ink-soft:#62655C;
+    --line:#E3E3DB; --hazard:#E2540B; --hazard-tint:#FBEDE3; --steel:#243137;
+    --steel-soft:#46555C; --caution:#C77B00; --good:#2F6B4F;
+    --brand:#0F766E; --brand-deep:#0B5A54; --brand-tint:#E6F2F0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .display{font-family:'Archivo',sans-serif;}
+
+  header{position:sticky;top:0;z-index:40;background:var(--steel);color:#fff;border-bottom:3px solid var(--brand);}
+  .bar{max-width:1280px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0;}
+  .mark{width:34px;height:34px;flex:none;border-radius:7px;background:var(--brand);display:flex;align-items:center;justify-content:center;font-family:'Archivo';font-weight:800;color:#fff;font-size:18px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.18);}
+  .brand h1{font-family:'Archivo';font-weight:800;font-size:19px;margin:0;letter-spacing:-.01em;line-height:1;}
+  .brand .eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#A9B6BC;margin-top:3px;}
+  .bar-actions{display:flex;align-items:center;gap:10px;flex:none;}
+  .pro-toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:#C3CDD2;cursor:pointer;user-select:none;}
+  .pro-toggle .dot{width:34px;height:19px;border-radius:99px;background:#3c4b52;position:relative;transition:background .18s;flex:none;}
+  .pro-toggle .dot::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .18s;}
+  .pro-toggle.on .dot{background:var(--brand);}
+  .pro-toggle.on .dot::after{transform:translateX(15px);}
+  .btn-export{font-family:'Archivo';font-weight:700;font-size:13.5px;background:var(--brand);color:#fff;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;letter-spacing:.01em;display:inline-flex;align-items:center;gap:8px;transition:transform .08s ease, filter .15s;}
+  .btn-export:hover{filter:brightness(1.06);}
+  .btn-export:active{transform:translateY(1px);}
+
+  .viewtabs{display:none;}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:26px 22px 90px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.06fr);gap:30px;align-items:start;}
+  @media(max-width:920px){
+    .wrap{grid-template-columns:1fr;gap:0;}
+    .viewtabs{display:grid;grid-template-columns:1fr 1fr;gap:0;position:sticky;top:64px;z-index:30;background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+    .viewtabs button{font-family:'Archivo';font-weight:700;font-size:13px;background:transparent;border:none;padding:12px;cursor:pointer;color:var(--ink-soft);}
+    .viewtabs button.active{background:var(--steel);color:#fff;}
+    #builderCol[data-hide="1"],#previewCol[data-hide="1"]{display:none;}
+  }
+
+  .section{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 20px 22px;margin-bottom:18px;}
+  .sec-head{display:flex;align-items:baseline;gap:11px;margin-bottom:16px;}
+  .sec-num{font-family:'IBM Plex Mono';font-size:12px;color:var(--brand);font-weight:500;letter-spacing:.04em;padding-top:2px;}
+  .sec-title{font-family:'Archivo';font-weight:700;font-size:16.5px;letter-spacing:-.01em;}
+  .sec-sub{font-size:12.5px;color:var(--ink-soft);margin:-9px 0 15px 31px;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:480px){.grid2{grid-template-columns:1fr;}}
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+  .field:last-child{margin-bottom:0;}
+  label.flbl{font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--steel-soft);}
+  input[type=text],input[type=date],textarea{font-family:'IBM Plex Sans';font-size:14.5px;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 11px;background:#fff;width:100%;transition:border-color .15s, box-shadow .15s;}
+  input::placeholder,textarea::placeholder{color:#A7A9A0;}
+  input:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint);}
+  textarea{resize:vertical;min-height:92px;line-height:1.45;}
+
+  .ai-row{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;}
+  .btn-ai{font-family:'Archivo';font-weight:700;font-size:13.5px;background:var(--steel);color:#fff;border:none;border-radius:8px;padding:11px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:9px;transition:filter .15s, transform .08s;}
+  .btn-ai:hover{filter:brightness(1.12);}
+  .btn-ai:active{transform:translateY(1px);}
+  .btn-ai:disabled{opacity:.55;cursor:default;}
+  .btn-ai .spark{font-size:15px;line-height:1;}
+  .ai-note{font-size:11.5px;color:var(--ink-soft);max-width:340px;}
+
+  .haz-list{display:flex;flex-direction:column;gap:12px;}
+  .haz-row{border:1px solid var(--line);border-radius:10px;padding:12px;background:#FCFCFB;position:relative;}
+  .haz-row .rownum{position:absolute;top:-9px;left:11px;background:var(--hazard);color:#fff;font-family:'IBM Plex Mono';font-size:10px;font-weight:500;padding:2px 7px;border-radius:99px;letter-spacing:.04em;}
+  .haz-row.step .rownum{background:var(--steel);}
+  .haz-row .del{position:absolute;top:8px;right:9px;border:none;background:transparent;color:#B6B6AE;cursor:pointer;font-size:17px;line-height:1;padding:2px;}
+  .haz-row .del:hover{color:var(--hazard);}
+  .haz-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:6px;}
+  @media(max-width:560px){.haz-grid{grid-template-columns:1fr;}}
+  .haz-row input.haz-title{font-weight:600;margin-bottom:9px;}
+  .haz-mini-lbl{font-family:'IBM Plex Mono';font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--steel-soft);display:block;margin-bottom:3px;}
+  .add-haz{font-family:'Archivo';font-weight:600;font-size:13px;color:var(--steel);background:transparent;border:1.5px dashed var(--line);border-radius:9px;padding:11px;cursor:pointer;width:100%;margin-top:12px;transition:border-color .15s,color .15s;}
+  .add-haz:hover{border-color:var(--brand);color:var(--brand);}
+  .haz-empty{text-align:center;color:var(--ink-soft);font-size:13px;border:1.5px dashed var(--line);border-radius:10px;padding:22px 14px;}
+  .review-flag{display:flex;gap:9px;align-items:flex-start;margin-top:14px;background:var(--hazard-tint);border:1px solid #F2C9A8;border-radius:9px;padding:11px 12px;font-size:12px;color:#8a3d07;line-height:1.45;}
+  .review-flag b{font-weight:600;}
+
+  /* PPE chips */
+  .ppe-grid{display:flex;flex-wrap:wrap;gap:8px;}
+  .ppe-chip{font-family:'IBM Plex Sans';font-size:13px;font-weight:500;border:1.5px solid var(--line);background:#fff;color:var(--ink-soft);border-radius:99px;padding:8px 14px;cursor:pointer;user-select:none;transition:all .14s;display:inline-flex;align-items:center;gap:7px;}
+  .ppe-chip .tick{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;line-height:1;}
+  .ppe-chip.on{border-color:var(--brand);background:var(--brand-tint);color:var(--brand-deep);}
+  .ppe-chip.on .tick{background:var(--brand);border-color:var(--brand);}
+
+  /* crew rows */
+  .crew-row{display:grid;grid-template-columns:1.2fr 1fr 30px;gap:9px;align-items:center;margin-bottom:9px;}
+  @media(max-width:480px){.crew-row{grid-template-columns:1fr 1fr 30px;}}
+  .crew-row .del{border:none;background:transparent;color:#B6B6AE;cursor:pointer;font-size:18px;padding:2px;}
+  .crew-row .del:hover{color:var(--hazard);}
+
+  .doc-shell{position:sticky;top:84px;}
+  @media(max-width:920px){.doc-shell{position:static;}}
+  .doc{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 0 rgba(0,0,0,.02), 0 18px 40px -28px rgba(36,49,55,.4);overflow:hidden;}
+  .doc-top{background:var(--steel);color:#fff;padding:22px 24px 20px;border-bottom:3px solid var(--hazard);}
+  .doc-top .kind{font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#9FB0B7;}
+  .doc-top .coname{font-family:'Archivo';font-weight:800;font-size:25px;letter-spacing:-.015em;margin:7px 0 2px;line-height:1.1;word-break:break-word;}
+  .doc-top .siteline{font-size:13px;color:#CBD5D9;}
+  .doc-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line);}
+  @media(max-width:560px){.doc-meta{grid-template-columns:1fr 1fr;}}
+  .doc-meta .cell{background:#fff;padding:11px 13px;}
+  .doc-meta .k{font-family:'IBM Plex Mono';font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--steel-soft);}
+  .doc-meta .v{font-size:13px;font-weight:500;margin-top:3px;word-break:break-word;}
+  .doc-body{padding:22px 24px 8px;}
+  .dsec{margin-bottom:22px;}
+  .dsec-h{display:flex;align-items:center;gap:9px;margin-bottom:11px;padding-bottom:8px;border-bottom:1.5px solid var(--ink);}
+  .dsec-h .n{font-family:'IBM Plex Mono';font-size:11px;color:var(--hazard);}
+  .dsec-h .t{font-family:'Archivo';font-weight:700;font-size:14.5px;letter-spacing:.01em;text-transform:uppercase;}
+  .scope-text{font-size:13.5px;color:#33352E;line-height:1.55;white-space:pre-wrap;}
+  .muted-empty{color:#A7A9A0;font-style:italic;}
+
+  table.hazt{width:100%;border-collapse:collapse;font-size:12.5px;}
+  table.hazt th{text-align:left;font-family:'IBM Plex Mono';font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--steel-soft);font-weight:500;padding:0 8px 7px;border-bottom:1px solid var(--line);}
+  table.hazt td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.45;}
+  table.hazt td.num{color:var(--hazard);font-family:'IBM Plex Mono';font-size:11px;width:24px;}
+  table.hazt td.hz{font-weight:600;width:24%;}
+  table.hazt td.rk{color:#55584F;width:30%;}
+  table.hazt tr:last-child td{border-bottom:none;}
+  table.swt td.num{color:var(--steel);}
+  table.swt td.stp{font-weight:600;width:30%;}
+
+  .ppe-badges{display:flex;flex-wrap:wrap;gap:7px;}
+  .ppe-badge{font-size:12px;font-weight:500;background:var(--brand-tint);color:var(--brand-deep);border:1px solid #BFE0DB;border-radius:7px;padding:5px 11px;}
+
+  .ppl{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  @media(max-width:560px){.ppl{grid-template-columns:1fr;}}
+  .ppl .pcell{background:#fff;padding:10px 12px;}
+  .ppl .role{font-family:'IBM Plex Mono';font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--steel-soft);}
+  .ppl .who{font-size:13.5px;font-weight:600;margin-top:2px;}
+  .ppl .ph{font-size:12.5px;color:#55584F;}
+  .em-call{background:var(--ink);color:#fff;border-radius:8px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px;}
+  .em-call .lbl{font-size:12px;color:#C9CBC2;}
+  .em-call .num111{font-family:'Archivo';font-weight:800;font-size:22px;letter-spacing:.03em;}
+
+  table.signt{width:100%;border-collapse:collapse;font-size:12.5px;}
+  table.signt th{text-align:left;font-family:'IBM Plex Mono';font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--steel-soft);font-weight:500;padding:0 8px 7px;border-bottom:1px solid var(--line);}
+  table.signt td{padding:0 8px;border-bottom:1px solid var(--line);height:34px;vertical-align:bottom;}
+  table.signt td.nm{font-weight:600;padding-top:8px;vertical-align:middle;}
+  table.signt td.rl{color:#55584F;vertical-align:middle;}
+  .sign-note{font-size:11.5px;color:var(--ink-soft);margin-bottom:10px;line-height:1.45;}
+
+  .doc-foot{border-top:1px solid var(--line);padding:14px 24px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .doc-foot .rev{font-size:11px;color:#8a3d07;background:var(--hazard-tint);border-radius:7px;padding:8px 11px;line-height:1.4;flex:1;min-width:200px;}
+  .doc-foot .stamp{font-family:'IBM Plex Mono';font-size:10.5px;color:var(--ink-soft);}
+  .doc-foot .stamp[data-pro="1"]{display:none;}
+
+  .hint{font-size:12px;color:var(--ink-soft);margin-top:14px;text-align:center;}
+
+  @media print{
+    @page{size:A4;margin:14mm 15mm;}
+    header,.viewtabs,#builderCol,.hint,.doc-shell{position:static!important;}
+    body{background:#fff;}
+    header,.viewtabs,#builderCol{display:none!important;}
+    .wrap{display:block;max-width:none;padding:0;margin:0;}
+    #previewCol{display:block!important;}
+    .doc{border:none;box-shadow:none;border-radius:0;}
+    .doc-top,.doc-meta,.em-call,.haz-row .rownum,.mark,table.hazt td.num,.dsec-h .n,.doc-top .kind,.doc-meta .k,.ppe-badge,.em-call .num111{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .dsec{break-inside:avoid;}
+    table.hazt tr,table.signt tr{break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand">
+      <div class="mark">C</div>
+      <div>
+        <h1 class="display">CompliAI</h1>
+        <div class="eyebrow mono">SSSP Builder · New Zealand</div>
+      </div>
+    </div>
+    <div class="bar-actions">
+      <div class="pro-toggle" id="proToggle" title="Pro removes the CompliAI footer and adds your branding">
+        <span class="dot"></span><span>Pro export</span>
+      </div>
+      <button class="btn-export" onclick="window.print()"><span>↧</span> Export PDF</button>
+    </div>
+  </div>
+</header>
+
+<div class="viewtabs">
+  <button id="tabEdit" class="active" onclick="setView('edit')">Edit</button>
+  <button id="tabPreview" onclick="setView('preview')">Preview</button>
+</div>
+
+<div class="wrap">
+  <!-- ===================== BUILDER ===================== -->
+  <div id="builderCol">
+
+    <div class="section">
+      <div class="sec-head"><span class="sec-num">01</span><span class="sec-title display">Site &amp; project</span></div>
+      <div class="field"><label class="flbl">Your company</label><input type="text" data-k="site.company" placeholder="e.g. Manukau Roofing Ltd" /></div>
+      <div class="field"><label class="flbl">Project / job name</label><input type="text" data-k="site.project" placeholder="e.g. Reroof — 14 Pohutukawa Ave" /></div>
+      <div class="field"><label class="flbl">Site address</label><input type="text" data-k="site.address" placeholder="e.g. 14 Pohutukawa Ave, Manukau, Auckland" /></div>
+      <div class="grid2">
+        <div class="field"><label class="flbl">Working for (principal)</label><input type="text" data-k="site.principal" placeholder="Main contractor / client" /></div>
+        <div class="field"><label class="flbl">Prepared by</label><input type="text" data-k="site.preparedBy" placeholder="Your name" /></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label class="flbl">Start date</label><input type="date" data-k="site.startDate" /></div>
+        <div class="field"><label class="flbl">Expected duration</label><input type="text" data-k="site.duration" placeholder="e.g. 5 days" /></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head"><span class="sec-num">02</span><span class="sec-title display">The job</span></div>
+      <div class="sec-sub">Describe the work in plain English — what you're doing, what gear, what's around you. The more you say, the better the AI drafts.</div>
+      <div class="field"><textarea data-k="scope" placeholder="e.g. Stripping and replacing the roof on a two-storey house. Using edge-protection scaffold and a scissor lift. Working at height, power lines along the street boundary, gas bottle storage on site, occupied house next door."></textarea></div>
+      <div class="ai-row">
+        <button class="btn-ai" id="aiBtn" onclick="draftHazards()"><span class="spark">✦</span> <span id="aiBtnLabel">Draft hazards from the job</span></button>
+        <span class="ai-note">Builds a starting hazard register you can edit. Review every line against the actual site.</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head"><span class="sec-num">03</span><span class="sec-title display">Hazards &amp; controls</span></div>
+      <div class="haz-list" id="hazList"></div>
+      <button class="add-haz" onclick="addHazard()">+ Add a hazard</button>
+      <div class="review-flag"><span>⚠</span><span><b>You own these controls.</b> Drafted suggestions are a starting point, not site-specific advice. Check them against your real site, gear, and crew, and add anything that's missing.</span></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head"><span class="sec-num">04</span><span class="sec-title display">PPE required</span></div>
+      <div class="sec-sub">Tap the gear that's mandatory on this site.</div>
+      <div class="ppe-grid" id="ppeGrid"></div>
+      <div class="field" style="margin-top:14px;"><label class="flbl">Other PPE (comma separated)</label><input type="text" data-k="ppe.other" placeholder="e.g. Cut-resistant gloves, P2 respirator" /></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head"><span class="sec-num">05</span><span class="sec-title display">Safe work method</span></div>
+      <div class="sec-sub">Break the job into steps, with the hazards and controls for each. This is your SWMS / task analysis.</div>
+      <div class="haz-list" id="swmsList"></div>
+      <button class="add-haz" onclick="addStep()">+ Add a step</button>
+      <div class="ai-row">
+        <button class="btn-ai" id="swmsBtn" onclick="draftSteps()"><span class="spark">✦</span> <span id="swmsBtnLabel">Draft method steps from the job</span></button>
+        <span class="ai-note">Turns the job into a sequence of steps with hazards and controls. Edit to match how you actually work.</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head"><span class="sec-num">06</span><span class="sec-title display">People &amp; emergencies</span></div>
+      <div class="grid2">
+        <div class="field"><label class="flbl">Site supervisor</label><input type="text" data-k="ppl.supName" placeholder="Name" /></div>
+        <div class="field"><label class="flbl">Supervisor phone</label><input type="text" data-k="ppl.supPhone" placeholder="021…" /></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label class="flbl">First aider</label><input type="text" data-k="ppl.faName" placeholder="Name" /></div>
+        <div class="field"><label class="flbl">First aider phone</label><input type="text" data-k="ppl.faPhone" placeholder="021…" /></div>
+      </div>
+      <div class="field"><label class="flbl">Nearest medical centre / hospital</label><input type="text" data-k="em.hospital" placeholder="e.g. Middlemore Hospital, Otahuhu" /></div>
+      <div class="field"><label class="flbl">Emergency assembly point</label><input type="text" data-k="em.assembly" placeholder="e.g. Front gate, by the street letterbox" /></div>
+    </div>
+
+    <div class="section">
+      <div class="sec-head"><span class="sec-num">07</span><span class="sec-title display">Crew sign-off</span></div>
+      <div class="sec-sub">List the crew. The printed plan leaves blank lines for them to sign on site, plus a few spares.</div>
+      <div id="crewList"></div>
+      <button class="add-haz" onclick="addCrew()">+ Add crew member</button>
+    </div>
+
+    <div class="hint">Everything updates the live plan on the right. When it looks right, hit <b>Export PDF</b>.</div>
+  </div>
+
+  <!-- ===================== PREVIEW ===================== -->
+  <div id="previewCol" data-hide="1">
+    <div class="doc-shell">
+      <div class="doc" id="doc">
+        <div class="doc-top">
+          <div class="kind">Site-Specific Safety Plan</div>
+          <div class="coname display" id="pCompany">Your company</div>
+          <div class="siteline" id="pSite">Site address will appear here</div>
+        </div>
+        <div class="doc-meta">
+          <div class="cell"><div class="k">Project</div><div class="v" id="pProject">—</div></div>
+          <div class="cell"><div class="k">Prepared by</div><div class="v" id="pPrep">—</div></div>
+          <div class="cell"><div class="k">Start</div><div class="v" id="pStart">—</div></div>
+          <div class="cell"><div class="k">Doc ref</div><div class="v mono" id="pRef">SSSP-0001 · Rev A</div></div>
+        </div>
+        <div class="doc-body">
+
+          <div class="dsec">
+            <div class="dsec-h"><span class="n mono">01</span><span class="t display">Scope of work</span></div>
+            <div class="scope-text" id="pScope"><span class="muted-empty">Describe the job and it'll show here.</span></div>
+            <div style="margin-top:10px;font-size:12.5px;color:#55584F;" id="pPrincipalLine"></div>
+          </div>
+
+          <div class="dsec">
+            <div class="dsec-h"><span class="n mono">02</span><span class="t display">Hazard register</span></div>
+            <div id="pHazWrap"><div class="muted-empty" style="font-size:13px;">No hazards yet — add them or draft from the job.</div></div>
+          </div>
+
+          <div class="dsec">
+            <div class="dsec-h"><span class="n mono">03</span><span class="t display">PPE required</span></div>
+            <div id="pPpeWrap"><div class="muted-empty" style="font-size:13px;">No PPE selected yet.</div></div>
+          </div>
+
+          <div class="dsec">
+            <div class="dsec-h"><span class="n mono">04</span><span class="t display">Safe work method statement</span></div>
+            <div id="pSwmsWrap"><div class="muted-empty" style="font-size:13px;">No method steps yet — add them or draft from the job.</div></div>
+          </div>
+
+          <div class="dsec">
+            <div class="dsec-h"><span class="n mono">05</span><span class="t display">Key people</span></div>
+            <div class="ppl">
+              <div class="pcell"><div class="role">Site supervisor</div><div class="who" id="pSup">—</div><div class="ph" id="pSupPh"></div></div>
+              <div class="pcell"><div class="role">First aider</div><div class="who" id="pFa">—</div><div class="ph" id="pFaPh"></div></div>
+            </div>
+          </div>
+
+          <div class="dsec">
+            <div class="dsec-h"><span class="n mono">06</span><span class="t display">Emergency procedure</span></div>
+            <div class="ppl">
+              <div class="pcell"><div class="role">Nearest medical</div><div class="who" id="pHosp" style="font-weight:500;font-size:13.5px;">—</div></div>
+              <div class="pcell"><div class="role">Assembly point</div><div class="who" id="pAssem" style="font-weight:500;font-size:13.5px;">—</div></div>
+            </div>
+            <div class="em-call"><span class="lbl">In a life-threatening emergency, call</span><span class="num111 display">111</span></div>
+          </div>
+
+          <div class="dsec">
+            <div class="dsec-h"><span class="n mono">07</span><span class="t display">Crew sign-off</span></div>
+            <div class="sign-note">By signing, each person confirms they've been briefed on this plan and understand the hazards and controls before starting work.</div>
+            <table class="signt"><thead><tr><th style="width:30%">Name</th><th style="width:26%">Role</th><th style="width:28%">Signature</th><th style="width:16%">Date</th></tr></thead><tbody id="pSignBody"></tbody></table>
+          </div>
+
+        </div>
+        <div class="doc-foot">
+          <div class="rev">This plan is a draft prepared for the site above. It must be reviewed, signed, and toolbox-briefed with the crew before work starts.</div>
+          <div class="stamp mono" id="footStamp">Drafted with CompliAI · compliai.nz</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PPE_ITEMS=[
+  {id:"hardhat",label:"Hard hat"},{id:"hivis",label:"Hi-vis"},{id:"boots",label:"Safety boots"},
+  {id:"eye",label:"Eye protection"},{id:"ear",label:"Hearing protection"},{id:"gloves",label:"Gloves"},
+  {id:"harness",label:"Fall harness"},{id:"resp",label:"Dust mask / respirator"},{id:"sun",label:"Sun protection"}
+];
+const state = {
+  site:{company:"",project:"",address:"",principal:"",preparedBy:"",startDate:"",duration:""},
+  scope:"",
+  ppl:{supName:"",supPhone:"",faName:"",faPhone:""},
+  em:{hospital:"",assembly:""},
+  hazards:[], swms:[], crew:[],
+  ppe:{selected:{},other:""},
+  pro:false
+};
+
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function setDeep(path,val){const p=path.split(".");let o=state;for(let i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=val;}
+function fmtDate(d){if(!d)return "—";const x=new Date(d+"T00:00:00");if(isNaN(x))return d;return x.toLocaleDateString("en-NZ",{day:"2-digit",month:"short",year:"numeric"});}
+
+document.getElementById("builderCol").addEventListener("input",e=>{
+  const k=e.target.getAttribute("data-k");
+  if(!k)return;
+  setDeep(k,e.target.value);
+  renderPreview();
+});
+
+document.getElementById("proToggle").addEventListener("click",()=>{
+  state.pro=!state.pro;
+  document.getElementById("proToggle").classList.toggle("on",state.pro);
+  renderPreview();
+});
+
+function setView(v){
+  const b=document.getElementById("builderCol"),p=document.getElementById("previewCol");
+  document.getElementById("tabEdit").classList.toggle("active",v==="edit");
+  document.getElementById("tabPreview").classList.toggle("active",v==="preview");
+  b.setAttribute("data-hide",v==="edit"?"0":"1");
+  p.setAttribute("data-hide",v==="preview"?"0":"1");
+}
+if(window.matchMedia("(max-width:920px)").matches){setView("edit");}
+else{document.getElementById("previewCol").setAttribute("data-hide","0");}
+
+/* ---- hazards ---- */
+function hazRowHtml(h,i){
+  return `<div class="haz-row" data-i="${i}">
+    <span class="rownum mono">H${String(i+1).padStart(2,"0")}</span>
+    <button class="del" title="Remove" onclick="delHazard(${i})">×</button>
+    <span class="haz-mini-lbl">Hazard</span>
+    <input type="text" class="haz-title" value="${esc(h.hazard)}" placeholder="What's the hazard?" oninput="editHaz(${i},'hazard',this.value)"/>
+    <div class="haz-grid">
+      <div><span class="haz-mini-lbl">Risk</span><input type="text" value="${esc(h.risk)}" placeholder="What could go wrong?" oninput="editHaz(${i},'risk',this.value)"/></div>
+      <div><span class="haz-mini-lbl">Controls</span><input type="text" value="${esc(h.controls)}" placeholder="How you'll manage it" oninput="editHaz(${i},'controls',this.value)"/></div>
+    </div>
+  </div>`;
+}
+function renderHazInputs(){
+  const wrap=document.getElementById("hazList");
+  if(!state.hazards.length){wrap.innerHTML=`<div class="haz-empty">No hazards yet. Draft them from the job above, or add your own.</div>`;return;}
+  wrap.innerHTML=state.hazards.map(hazRowHtml).join("");
+}
+function editHaz(i,f,v){state.hazards[i][f]=v;renderPreview();}
+function addHazard(){state.hazards.push({hazard:"",risk:"",controls:""});renderHazInputs();renderPreview();}
+function delHazard(i){state.hazards.splice(i,1);renderHazInputs();renderPreview();}
+
+/* ---- SWMS steps ---- */
+function stepRowHtml(s,i){
+  return `<div class="haz-row step" data-i="${i}">
+    <span class="rownum mono">S${String(i+1).padStart(2,"0")}</span>
+    <button class="del" title="Remove" onclick="delStep(${i})">×</button>
+    <span class="haz-mini-lbl">Step / task</span>
+    <input type="text" class="haz-title" value="${esc(s.step)}" placeholder="e.g. Erect edge-protection scaffold" oninput="editStep(${i},'step',this.value)"/>
+    <div class="haz-grid">
+      <div><span class="haz-mini-lbl">Hazards</span><input type="text" value="${esc(s.hazards)}" placeholder="Hazards in this step" oninput="editStep(${i},'hazards',this.value)"/></div>
+      <div><span class="haz-mini-lbl">Controls</span><input type="text" value="${esc(s.controls)}" placeholder="Controls for this step" oninput="editStep(${i},'controls',this.value)"/></div>
+    </div>
+  </div>`;
+}
+function renderStepInputs(){
+  const wrap=document.getElementById("swmsList");
+  if(!state.swms.length){wrap.innerHTML=`<div class="haz-empty">No steps yet. Draft them from the job, or add your own.</div>`;return;}
+  wrap.innerHTML=state.swms.map(stepRowHtml).join("");
+}
+function editStep(i,f,v){state.swms[i][f]=v;renderPreview();}
+function addStep(){state.swms.push({step:"",hazards:"",controls:""});renderStepInputs();renderPreview();}
+function delStep(i){state.swms.splice(i,1);renderStepInputs();renderPreview();}
+
+/* ---- PPE ---- */
+function renderPpeChips(){
+  const g=document.getElementById("ppeGrid");
+  g.innerHTML=PPE_ITEMS.map(it=>{
+    const on=state.ppe.selected[it.id]?"on":"";
+    return `<div class="ppe-chip ${on}" onclick="togglePpe('${it.id}')"><span class="tick">${on?"✓":""}</span>${esc(it.label)}</div>`;
+  }).join("");
+}
+function togglePpe(id){state.ppe.selected[id]=!state.ppe.selected[id];renderPpeChips();renderPreview();}
+
+/* ---- crew ---- */
+function crewRowHtml(c,i){
+  return `<div class="crew-row" data-i="${i}">
+    <input type="text" value="${esc(c.name)}" placeholder="Name" oninput="editCrew(${i},'name',this.value)"/>
+    <input type="text" value="${esc(c.role)}" placeholder="Role / trade" oninput="editCrew(${i},'role',this.value)"/>
+    <button class="del" title="Remove" onclick="delCrew(${i})">×</button>
+  </div>`;
+}
+function renderCrewInputs(){
+  const wrap=document.getElementById("crewList");
+  wrap.innerHTML=state.crew.length?state.crew.map(crewRowHtml).join(""):`<div class="haz-empty" style="padding:16px;">No crew added yet — the plan will still print blank sign-off lines.</div>`;
+}
+function editCrew(i,f,v){state.crew[i][f]=v;renderPreview();}
+function addCrew(){state.crew.push({name:"",role:""});renderCrewInputs();renderPreview();}
+function delCrew(i){state.crew.splice(i,1);renderCrewInputs();renderPreview();}
+
+/* ---- AI: hazards ---- */
+async function callClaude(prompt){
+  const res=await fetch("/api/draft",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({prompt})
+  });
+  if(!res.ok)throw new Error("backend "+res.status);
+  const data=await res.json();
+  let text=(data.text||"").trim();
+  text=text.replace(/```json/gi,"").replace(/```/g,"").trim();
+  const start=text.indexOf("["),end=text.lastIndexOf("]");
+  if(start>=0&&end>start)text=text.slice(start,end+1);
+  return JSON.parse(text);
+}
+async function draftHazards(){
+  const scope=state.scope.trim();
+  const btn=document.getElementById("aiBtn"),lbl=document.getElementById("aiBtnLabel");
+  if(scope.length<12){lbl.textContent="Describe the job first ↑";setTimeout(()=>lbl.textContent="Draft hazards from the job",2200);return;}
+  btn.disabled=true;lbl.textContent="Reading the job…";
+  try{
+    const arr=await callClaude(`You are helping draft a Site-Specific Safety Plan (SSSP) hazard register for a New Zealand construction or trade job. Job description:\n\n"""${scope}"""\n\nList the most relevant on-site hazards for THIS job. For each: the hazard, the specific risk it creates, and practical controls in plain English aligned with NZ WorkSafe good practice. Be specific to the work described, not generic.\n\nReturn ONLY a JSON array, no markdown, no preamble:\n[{"hazard":"","risk":"","controls":""}]\nGive 6 to 8 items. Keep each field to one concise sentence.`);
+    if(Array.isArray(arr)&&arr.length){
+      state.hazards=arr.map(h=>({hazard:h.hazard||"",risk:h.risk||"",controls:h.controls||""}));
+      renderHazInputs();renderPreview();
+      lbl.textContent="Drafted ✓ — now review each line";
+      setTimeout(()=>lbl.textContent="Re-draft hazards from the job",2600);
+    }else{throw new Error("empty");}
+  }catch(err){lbl.textContent="Couldn't draft — try again";setTimeout(()=>lbl.textContent="Draft hazards from the job",2600);}
+  finally{btn.disabled=false;}
+}
+
+/* ---- AI: SWMS steps ---- */
+async function draftSteps(){
+  const scope=state.scope.trim();
+  const btn=document.getElementById("swmsBtn"),lbl=document.getElementById("swmsBtnLabel");
+  if(scope.length<12){lbl.textContent="Describe the job first ↑";setTimeout(()=>lbl.textContent="Draft method steps from the job",2200);return;}
+  btn.disabled=true;lbl.textContent="Sequencing the job…";
+  try{
+    const arr=await callClaude(`You are drafting a Safe Work Method Statement (SWMS / task analysis) for a New Zealand construction or trade job. Job description:\n\n"""${scope}"""\n\nBreak the job into the logical sequence of work steps from setup to pack-down. For each step: the task, the key hazards in that step, and the controls. Be specific to the work described.\n\nReturn ONLY a JSON array, no markdown, no preamble:\n[{"step":"","hazards":"","controls":""}]\nGive 5 to 8 steps in order. Keep each field to one concise sentence.`);
+    if(Array.isArray(arr)&&arr.length){
+      state.swms=arr.map(s=>({step:s.step||"",hazards:s.hazards||"",controls:s.controls||""}));
+      renderStepInputs();renderPreview();
+      lbl.textContent="Drafted ✓ — now review each step";
+      setTimeout(()=>lbl.textContent="Re-draft method steps from the job",2600);
+    }else{throw new Error("empty");}
+  }catch(err){lbl.textContent="Couldn't draft — try again";setTimeout(()=>lbl.textContent="Draft method steps from the job",2600);}
+  finally{btn.disabled=false;}
+}
+
+/* ---- preview ---- */
+function val(s,fallback){return s&&s.trim()?esc(s):fallback;}
+function renderPreview(){
+  document.getElementById("pCompany").textContent=state.site.company||"Your company";
+  document.getElementById("pSite").textContent=state.site.address||"Site address will appear here";
+  document.getElementById("pProject").innerHTML=val(state.site.project,"—");
+  document.getElementById("pPrep").innerHTML=val(state.site.preparedBy,"—");
+  document.getElementById("pStart").textContent=fmtDate(state.site.startDate)+(state.site.duration?" · "+state.site.duration:"");
+
+  document.getElementById("pScope").innerHTML=state.scope.trim()?esc(state.scope):`<span class="muted-empty">Describe the job and it'll show here.</span>`;
+  document.getElementById("pPrincipalLine").innerHTML=state.site.principal.trim()?`<b>Working for:</b> ${esc(state.site.principal)}`:"";
+
+  // hazards
+  const hw=document.getElementById("pHazWrap");
+  const hrows=state.hazards.filter(h=>h.hazard||h.risk||h.controls);
+  hw.innerHTML=!hrows.length?`<div class="muted-empty" style="font-size:13px;">No hazards yet — add them or draft from the job.</div>`:
+    `<table class="hazt"><thead><tr><th></th><th>Hazard</th><th>Risk</th><th>Controls</th></tr></thead><tbody>`+
+    hrows.map((h,i)=>`<tr><td class="num">${String(i+1).padStart(2,"0")}</td><td class="hz">${esc(h.hazard)||"—"}</td><td class="rk">${esc(h.risk)||"—"}</td><td>${esc(h.controls)||"—"}</td></tr>`).join("")+`</tbody></table>`;
+
+  // PPE
+  const pw=document.getElementById("pPpeWrap");
+  const labels=PPE_ITEMS.filter(it=>state.ppe.selected[it.id]).map(it=>it.label);
+  const others=state.ppe.other.split(",").map(s=>s.trim()).filter(Boolean);
+  const allppe=labels.concat(others);
+  pw.innerHTML=allppe.length?`<div class="ppe-badges">`+allppe.map(l=>`<span class="ppe-badge">${esc(l)}</span>`).join("")+`</div>`:`<div class="muted-empty" style="font-size:13px;">No PPE selected yet.</div>`;
+
+  // SWMS
+  const sw=document.getElementById("pSwmsWrap");
+  const srows=state.swms.filter(s=>s.step||s.hazards||s.controls);
+  sw.innerHTML=!srows.length?`<div class="muted-empty" style="font-size:13px;">No method steps yet — add them or draft from the job.</div>`:
+    `<table class="hazt swt"><thead><tr><th></th><th>Step</th><th>Hazards</th><th>Controls</th></tr></thead><tbody>`+
+    srows.map((s,i)=>`<tr><td class="num">${String(i+1).padStart(2,"0")}</td><td class="stp">${esc(s.step)||"—"}</td><td class="rk">${esc(s.hazards)||"—"}</td><td>${esc(s.controls)||"—"}</td></tr>`).join("")+`</tbody></table>`;
+
+  // people
+  document.getElementById("pSup").textContent=state.ppl.supName||"—";
+  document.getElementById("pSupPh").textContent=state.ppl.supPhone||"";
+  document.getElementById("pFa").textContent=state.ppl.faName||"—";
+  document.getElementById("pFaPh").textContent=state.ppl.faPhone||"";
+  document.getElementById("pHosp").textContent=state.em.hospital||"—";
+  document.getElementById("pAssem").textContent=state.em.assembly||"—";
+
+  // sign-off
+  const named=state.crew.filter(c=>c.name||c.role);
+  const blanks=Math.max(3,5-named.length);
+  let rows=named.map(c=>`<tr><td class="nm">${esc(c.name)||"&nbsp;"}</td><td class="rl">${esc(c.role)||""}</td><td></td><td></td></tr>`).join("");
+  for(let i=0;i<blanks;i++)rows+=`<tr><td></td><td></td><td></td><td></td></tr>`;
+  document.getElementById("pSignBody").innerHTML=rows;
+
+  document.getElementById("footStamp").setAttribute("data-pro",state.pro?"1":"0");
+}
+
+renderHazInputs();
+renderStepInputs();
+renderPpeChips();
+renderCrewInputs();
+renderPreview();
+</script>
+</body>
+</html>

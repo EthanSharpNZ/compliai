@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SSSP Template NZ — Free Site-Specific Safety Plan Builder | CompliAI</title>
+<meta name="description" content="Build a Site-Specific Safety Plan free. CompliAI's AI drafts your hazard register, SWMS and PPE from a plain-English job description. Made for NZ trades and subbies." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://compliai.co.nz/" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://compliai.co.nz/" />
+<meta property="og:title" content="Free SSSP Builder for NZ trades — Site-Specific Safety Plan in minutes" />
+<meta property="og:description" content="Describe the job in plain English. CompliAI drafts your hazard register, SWMS and PPE, then exports a branded SSSP PDF. Free to use." />
+<meta property="og:image" content="https://compliai.co.nz/og-image.png" />
+<meta property="og:locale" content="en_NZ" />
+<meta property="og:site_name" content="CompliAI" />
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Free SSSP Builder for NZ trades — CompliAI" />
+<meta name="twitter:description" content="AI drafts your Site-Specific Safety Plan, hazard register, SWMS and PPE from a plain-English job description. Free to use." />
+<meta name="twitter:image" content="https://compliai.co.nz/og-image.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Structured data: Organization + SoftwareApplication -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"SoftwareApplication",
+  "name":"CompliAI SSSP Builder",
+  "applicationCategory":"BusinessApplication",
+  "operatingSystem":"Web",
+  "url":"https://compliai.co.nz/",
+  "description":"Free AI-powered Site-Specific Safety Plan (SSSP) builder for New Zealand trades. Drafts hazard registers, SWMS, PPE and crew sign-off from a plain-English job description.",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"NZD"},
+  "publisher":{"@type":"Organization","name":"CompliAI","url":"https://compliai.co.nz/"},
+  "areaServed":{"@type":"Country","name":"New Zealand"}
+}
+</script>
+<!-- Structured data: HowTo -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"HowTo",
+  "name":"How to write a Site-Specific Safety Plan (SSSP) in New Zealand",
+  "step":[
+    {"@type":"HowToStep","name":"Describe the job","text":"Write what you're doing, the gear you'll use and what's around you, in plain English."},
+    {"@type":"HowToStep","name":"Let AI draft the safety content","text":"CompliAI drafts a hazard register, a safe work method statement and a PPE list from your description."},
+    {"@type":"HowToStep","name":"Review and export","text":"Review every line against your real site, add your company details, and export a branded SSSP PDF."}
+  ]
+}
+</script>
+<!-- Structured data: FAQ -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"What is a Site-Specific Safety Plan (SSSP)?","acceptedAnswer":{"@type":"Answer","text":"An SSSP is a document that sets out how health and safety risks will be managed for one specific job or site. Main contractors and principals almost always require it before you start work on site."}},
+    {"@type":"Question","name":"Is an SSSP legally required in New Zealand?","acceptedAnswer":{"@type":"Answer","text":"The Health and Safety at Work Act 2015 requires every business to manage its work risks so far as is reasonably practicable. An SSSP is not a named statutory form, but it is the standard way to show you are doing that, and it is almost always required contractually by the main contractor or principal."}},
+    {"@type":"Question","name":"What is the difference between an SSSP and a SWMS?","acceptedAnswer":{"@type":"Answer","text":"An SSSP is the whole-of-site safety plan. A SWMS (Safe Work Method Statement) breaks a specific task into steps and lists the hazards and controls for each step. CompliAI produces both."}},
+    {"@type":"Question","name":"How long does it take to make an SSSP with CompliAI?","acceptedAnswer":{"@type":"Answer","text":"A few minutes. You describe the job in plain English, the AI drafts the hazard register, SWMS and PPE, you review it, and you export a PDF."}},
+    {"@type":"Question","name":"Is CompliAI free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The builder is free to use and export. A paid plan removes the CompliAI footer, adds your logo, and saves your company details so you stop re-typing them."}},
+    {"@type":"Question","name":"Does CompliAI guarantee my safety plan is compliant?","acceptedAnswer":{"@type":"Answer","text":"No. CompliAI drafts a starting point that you must review and adapt to your actual site, gear and crew. You remain responsible for the final plan."}}
+  ]
+}
+</script>
+
+<style>
+  :root{
+    --paper:#F3F3EF; --surface:#FFFFFF; --ink:#1A1B17; --ink-soft:#5C5F57;
+    --line:#E3E3DB; --hazard:#E2540B; --hazard-tint:#FBEDE3;
+    --steel:#243137; --steel-soft:#46555C;
+    --brand:#0F766E; --brand-deep:#0B5A54; --brand-tint:#E6F2F0; --brand-bright:#14938A;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .display{font-family:'Archivo',sans-serif;}
+  a{color:inherit;}
+  img{max-width:100%;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px;}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;background:rgba(36,49,55,.97);backdrop-filter:blur(6px);border-bottom:3px solid var(--brand);}
+  .nav-in{max-width:1120px;margin:0 auto;padding:13px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;}
+  .logo{display:flex;align-items:center;gap:11px;color:#fff;text-decoration:none;}
+  .logo .mk{width:32px;height:32px;border-radius:7px;background:var(--brand);display:flex;align-items:center;justify-content:center;font-family:'Archivo';font-weight:800;font-size:17px;color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.18);}
+  .logo b{font-family:'Archivo';font-weight:800;font-size:18px;letter-spacing:-.01em;}
+  .nav-links{display:flex;align-items:center;gap:24px;}
+  .nav-links a{color:#C7D0D3;text-decoration:none;font-size:14px;font-weight:500;}
+  .nav-links a:hover{color:#fff;}
+  .cta{font-family:'Archivo';font-weight:700;font-size:14px;background:var(--brand);color:#fff;text-decoration:none;border-radius:8px;padding:10px 17px;display:inline-block;transition:filter .15s, transform .08s;border:none;cursor:pointer;}
+  .cta:hover{filter:brightness(1.08);}
+  .cta:active{transform:translateY(1px);}
+  @media(max-width:760px){.nav-links a:not(.cta){display:none;}}
+
+  /* hero */
+  .hero{background:var(--steel);color:#fff;padding:62px 0 70px;position:relative;overflow:hidden;}
+  .hero::after{content:"";position:absolute;inset:0;background:radial-gradient(900px 420px at 78% -8%, rgba(20,147,138,.28), transparent 60%);pointer-events:none;}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:46px;align-items:center;position:relative;z-index:2;}
+  @media(max-width:880px){.hero-grid{grid-template-columns:1fr;gap:34px;}}
+  .eyebrow{font-family:'IBM Plex Mono';font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#7FD3CB;margin-bottom:18px;}
+  h1{font-family:'Archivo';font-weight:800;font-size:48px;line-height:1.04;letter-spacing:-.02em;margin:0 0 18px;}
+  @media(max-width:880px){h1{font-size:37px;}}
+  .hero p.sub{font-size:18px;color:#CBD5D9;margin:0 0 26px;max-width:520px;}
+  .hero-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .cta-lg{font-family:'Archivo';font-weight:700;font-size:16px;background:var(--brand);color:#fff;text-decoration:none;border-radius:10px;padding:14px 24px;display:inline-flex;align-items:center;gap:9px;transition:filter .15s, transform .08s;}
+  .cta-lg:hover{filter:brightness(1.1);}
+  .cta-lg:active{transform:translateY(1px);}
+  .ghost{font-size:14px;color:#A9B6BC;text-decoration:none;font-weight:500;}
+  .ghost:hover{color:#fff;}
+  .freebar{margin-top:22px;font-size:13px;color:#94A4AA;display:flex;gap:18px;flex-wrap:wrap;}
+  .freebar span{display:flex;align-items:center;gap:7px;}
+  .freebar .tick{color:var(--brand-bright);font-weight:700;}
+
+  /* hero signature: transform card */
+  .xform{background:#1c272c;border:1px solid #33444b;border-radius:16px;padding:18px;box-shadow:0 30px 60px -30px rgba(0,0,0,.6);}
+  .xform .typed{background:#13191d;border:1px solid #2c3a40;border-radius:10px;padding:13px 14px;font-size:13.5px;color:#D7DEE1;line-height:1.5;}
+  .xform .typed .lbl{font-family:'IBM Plex Mono';font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6f8389;display:block;margin-bottom:6px;}
+  .xform .arrow{text-align:center;color:var(--brand-bright);font-size:20px;margin:9px 0;}
+  .minidoc{background:#fff;border-radius:10px;overflow:hidden;color:var(--ink);}
+  .minidoc .mh{background:var(--steel);color:#fff;padding:12px 14px;border-bottom:3px solid var(--hazard);}
+  .minidoc .mh .k{font-family:'IBM Plex Mono';font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:#9FB0B7;}
+  .minidoc .mh .co{font-family:'Archivo';font-weight:800;font-size:15px;margin-top:3px;}
+  .minidoc .mb{padding:11px 14px 13px;}
+  .minidoc table{width:100%;border-collapse:collapse;font-size:10.5px;}
+  .minidoc th{text-align:left;font-family:'IBM Plex Mono';font-size:7.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--steel-soft);padding:0 6px 5px;border-bottom:1px solid var(--line);}
+  .minidoc td{padding:6px 6px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.35;}
+  .minidoc td.n{color:var(--hazard);font-family:'IBM Plex Mono';font-size:9px;width:16px;}
+  .minidoc tr:last-child td{border-bottom:none;}
+
+  /* generic section */
+  section.band{padding:64px 0;}
+  .kicker{font-family:'IBM Plex Mono';font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--brand);margin-bottom:12px;}
+  h2{font-family:'Archivo';font-weight:800;font-size:31px;line-height:1.12;letter-spacing:-.015em;margin:0 0 14px;}
+  @media(max-width:880px){h2{font-size:26px;}}
+  .lede{font-size:17px;color:var(--ink-soft);max-width:600px;margin:0 0 8px;}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px;}
+  @media(max-width:760px){.steps{grid-template-columns:1fr;}}
+  .step{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:22px;}
+  .step .num{font-family:'IBM Plex Mono';font-size:12px;color:var(--brand);font-weight:500;}
+  .step h3{font-family:'Archivo';font-weight:700;font-size:17.5px;margin:9px 0 7px;letter-spacing:-.01em;}
+  .step p{font-size:14.5px;color:var(--ink-soft);margin:0;}
+
+  /* feature list */
+  .feat-band{background:var(--steel);color:#fff;}
+  .feat-band .kicker{color:var(--brand-bright);}
+  .feat-band h2{color:#fff;}
+  .feat-band .lede{color:#BDCAD0;}
+  .feats{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:#33444b;border:1px solid #33444b;border-radius:14px;overflow:hidden;margin-top:32px;}
+  @media(max-width:680px){.feats{grid-template-columns:1fr;}}
+  .feat{background:#1f2a2f;padding:22px 22px 24px;}
+  .feat .ic{width:32px;height:32px;border-radius:8px;background:rgba(20,147,138,.16);color:var(--brand-bright);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:13px;}
+  .feat h3{font-family:'Archivo';font-weight:700;font-size:16.5px;margin:0 0 6px;}
+  .feat p{font-size:14px;color:#AEBCC2;margin:0;}
+
+  /* trades */
+  .trades{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;}
+  .trade{background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:9px 17px;font-size:14px;font-weight:500;color:var(--ink);}
+  .trade b{color:var(--brand-deep);font-weight:600;}
+
+  /* content depth */
+  .prose{max-width:720px;}
+  .prose h2{margin-top:6px;}
+  .prose h3{font-family:'Archivo';font-weight:700;font-size:20px;margin:30px 0 8px;letter-spacing:-.01em;}
+  .prose p{font-size:16px;color:#33352E;margin:0 0 15px;}
+  .prose .src{font-size:13px;color:var(--ink-soft);}
+
+  /* FAQ */
+  .faq{max-width:760px;margin-top:30px;}
+  details{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:4px 18px;margin-bottom:11px;}
+  details summary{font-family:'Archivo';font-weight:600;font-size:16.5px;padding:15px 0;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  details summary::-webkit-details-marker{display:none;}
+  details summary::after{content:"+";font-family:'IBM Plex Mono';color:var(--brand);font-size:20px;font-weight:500;}
+  details[open] summary::after{content:"–";}
+  details p{font-size:15px;color:var(--ink-soft);margin:0 0 16px;line-height:1.6;}
+
+  /* pricing */
+  .price-band{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .prices{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px;}
+  @media(max-width:760px){.prices{grid-template-columns:1fr;}}
+  .price{border:1px solid var(--line);border-radius:14px;padding:24px;background:var(--paper);position:relative;}
+  .price.feature{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint);background:#fff;}
+  .price .tag{font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--steel-soft);}
+  .price .amt{font-family:'Archivo';font-weight:800;font-size:34px;letter-spacing:-.02em;margin:8px 0 2px;}
+  .price .amt small{font-size:15px;font-weight:600;color:var(--ink-soft);}
+  .price .per{font-size:13px;color:var(--ink-soft);margin-bottom:16px;}
+  .price ul{list-style:none;padding:0;margin:0 0 20px;}
+  .price li{font-size:14px;padding:7px 0;border-top:1px solid var(--line);display:flex;gap:9px;}
+  .price li::before{content:"✓";color:var(--brand);font-weight:700;}
+  .price .badge{position:absolute;top:-11px;right:18px;background:var(--brand);color:#fff;font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:99px;}
+  .price .cta{width:100%;text-align:center;}
+  .price .cta.alt{background:transparent;color:var(--brand-deep);border:1.5px solid var(--line);}
+  .price .cta.alt:hover{border-color:var(--brand);filter:none;}
+
+  /* final cta */
+  .final{background:var(--steel);color:#fff;text-align:center;padding:70px 0;}
+  .final h2{color:#fff;font-size:34px;}
+  .final p{color:#BDCAD0;font-size:17px;max-width:520px;margin:0 auto 26px;}
+
+  /* footer */
+  footer{background:#1a242a;color:#9FB0B7;padding:40px 0 50px;font-size:13.5px;}
+  .foot-grid{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-start;}
+  .foot-logo{display:flex;align-items:center;gap:10px;color:#fff;}
+  .foot-logo .mk{width:28px;height:28px;border-radius:6px;background:var(--brand);display:flex;align-items:center;justify-content:center;font-family:'Archivo';font-weight:800;font-size:15px;}
+  .foot-logo b{font-family:'Archivo';font-weight:800;font-size:16px;}
+  .disclaimer{max-width:560px;line-height:1.55;color:#7E9097;}
+  .foot-bottom{border-top:1px solid #2c3a40;margin-top:28px;padding-top:18px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:#6f8389;}
+  .foot-bottom a{color:#9FB0B7;text-decoration:none;}
+  .foot-bottom a:hover{color:#fff;}
+
+  :focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px;border-radius:4px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a class="logo" href="/"><span class="mk">C</span><b>CompliAI</b></a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#includes">What's included</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a class="cta" href="sssp-builder.html">Build your SSSP free</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">Site-Specific Safety Plans · New Zealand</div>
+        <h1>Write a Site-Specific Safety Plan in minutes, not hours.</h1>
+        <p class="sub">Describe the job in plain English. CompliAI drafts your hazard register, SWMS and PPE, then exports a clean, branded SSSP — ready to hand to the main contractor.</p>
+        <div class="hero-actions">
+          <a class="cta-lg" href="sssp-builder.html">Build your SSSP free →</a>
+          <a class="ghost" href="#how">See how it works</a>
+        </div>
+        <div class="freebar">
+          <span><span class="tick">✓</span> Free to use &amp; export</span>
+          <span><span class="tick">✓</span> No account to start</span>
+          <span><span class="tick">✓</span> Made for NZ sites</span>
+        </div>
+      </div>
+
+      <div class="xform" aria-hidden="true">
+        <div class="typed">
+          <span class="lbl">The job, in your words</span>
+          Reroofing a two-storey house in Manukau. Edge-protection scaffold and a scissor lift. Power lines on the boundary, gas bottles on site, house next door occupied.
+        </div>
+        <div class="arrow">↓</div>
+        <div class="minidoc">
+          <div class="mh"><div class="k">Site-Specific Safety Plan</div><div class="co">Manukau Roofing Ltd</div></div>
+          <div class="mb">
+            <table>
+              <thead><tr><th></th><th>Hazard</th><th>Controls</th></tr></thead>
+              <tbody>
+                <tr><td class="n">01</td><td>Working at height</td><td>Edge-protection scaffold, harness on lift</td></tr>
+                <tr><td class="n">02</td><td>Overhead power lines</td><td>Maintain 4m clearance, spotter on lift moves</td></tr>
+                <tr><td class="n">03</td><td>LPG / gas storage</td><td>Bottles upright, caged, away from hot works</td></tr>
+                <tr><td class="n">04</td><td>Public &amp; neighbours</td><td>Barricade drop zone, signage at boundary</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="band" id="how">
+  <div class="wrap">
+    <div class="kicker">How it works</div>
+    <h2>From a sentence to a site-ready plan</h2>
+    <p class="lede">No templates to wrestle, no blank page. You describe the work; the AI does the first draft of the safety thinking.</p>
+    <div class="steps">
+      <div class="step"><div class="num">01</div><h3>Describe the job</h3><p>Write what you're doing, the gear you'll use, and what's around you — in plain English.</p></div>
+      <div class="step"><div class="num">02</div><h3>AI drafts the safety content</h3><p>CompliAI builds a hazard register, a safe work method statement and a PPE list tailored to the job.</p></div>
+      <div class="step"><div class="num">03</div><h3>Review &amp; export</h3><p>Check every line against your real site, add your details, and export a branded SSSP PDF.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band feat-band" id="includes">
+  <div class="wrap">
+    <div class="kicker">What's included</div>
+    <h2>A full SSSP, not just a hazard list</h2>
+    <p class="lede">Everything a main contractor asks a subbie to hand in — in one export.</p>
+    <div class="feats">
+      <div class="feat"><div class="ic">⚠</div><h3>Hazard register</h3><p>Site hazards with the risk each creates and the controls to manage it.</p></div>
+      <div class="feat"><div class="ic">↳</div><h3>Safe Work Method Statement</h3><p>The job broken into steps, with hazards and controls for each one.</p></div>
+      <div class="feat"><div class="ic">⛑</div><h3>PPE requirements</h3><p>Tap the gear that's mandatory on site; it prints into the plan.</p></div>
+      <div class="feat"><div class="ic">✎</div><h3>Crew sign-off sheet</h3><p>Signature lines so the crew can confirm they've been briefed before work starts.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="kicker">Built for the trades</div>
+    <h2>Whatever you're on site for</h2>
+    <p class="lede">The hazard and method drafts adapt to the work you describe.</p>
+    <div class="trades">
+      <span class="trade"><b>SSSP for</b> roofers</span>
+      <span class="trade"><b>SSSP for</b> electricians</span>
+      <span class="trade"><b>SSSP for</b> scaffolders</span>
+      <span class="trade"><b>SSSP for</b> builders</span>
+      <span class="trade"><b>SSSP for</b> plumbers &amp; gasfitters</span>
+      <span class="trade"><b>SSSP for</b> painters</span>
+      <span class="trade"><b>SSSP for</b> concrete &amp; civil</span>
+      <span class="trade"><b>SSSP for</b> equipment hire</span>
+    </div>
+  </div>
+</section>
+
+<section class="band" style="background:var(--surface);border-top:1px solid var(--line);">
+  <div class="wrap prose">
+    <div class="kicker">The plain-English guide</div>
+    <h2>What is an SSSP, and do you need one in NZ?</h2>
+    <p>A Site-Specific Safety Plan (SSSP) is a document that sets out how the health and safety risks of one particular job or site will be managed. It pulls together the hazards on that site, the controls for them, the safe method for the work, the PPE required, and who's responsible — so everyone arriving on site knows how the job will be run safely.</p>
+
+    <h3>Is it legally required?</h3>
+    <p>Not as a named form. Under the Health and Safety at Work Act 2015, every business (a "PCBU") has a duty to manage its work risks so far as is reasonably practicable. An SSSP isn't written into the Act by name — but it's the standard, widely recognised way to demonstrate you're meeting that duty, and main contractors and principals almost always require one contractually before they'll let you start on site. In practice, no SSSP often means no job.</p>
+
+    <h3>SSSP vs SWMS — what's the difference?</h3>
+    <p>An SSSP is the whole-of-site plan. A Safe Work Method Statement (SWMS), sometimes called a job safety analysis or task analysis, zooms in on a single task and breaks it into steps, listing the hazards and controls for each. A good SSSP usually contains one or more SWMS for the higher-risk parts of the work. CompliAI drafts both.</p>
+
+    <h3>What makes a plan "site-specific"?</h3>
+    <p>The clue is in the name. A generic template that could describe any site is exactly what principals are trying to avoid. A real SSSP names the actual hazards on this site — the power lines on that boundary, the occupied house next door, the gas bottles in that corner. That's the part CompliAI speeds up: you describe the real site, and the draft reflects it, instead of you starting from a blank or generic template.</p>
+
+    <p class="src">General guidance only, not legal advice. Always check current requirements with WorkSafe New Zealand and your principal contractor, and review every plan against your actual site.</p>
+  </div>
+</section>
+
+<section class="band" id="faq">
+  <div class="wrap">
+    <div class="kicker">Questions</div>
+    <h2>Frequently asked</h2>
+    <div class="faq">
+      <details open><summary>Is CompliAI really free?</summary><p>Yes — you can build and export an SSSP for free. A paid plan removes the small CompliAI footer, adds your own logo, and saves your company details so you don't re-type them every job.</p></details>
+      <details><summary>Does the AI guarantee my plan is compliant?</summary><p>No, and this matters: CompliAI drafts a starting point. You must review every line against your actual site, gear and crew, adapt it, and brief your team. You remain responsible for the final plan — it's a tool to speed up your thinking, not a replacement for it.</p></details>
+      <details><summary>How long does it take?</summary><p>A few minutes. Describe the job, let the AI draft the hazard register, SWMS and PPE, review and tidy it, then export the PDF.</p></details>
+      <details><summary>Can I add my company logo and branding?</summary><p>Yes, on a paid plan. The free version exports a clean plan with a small CompliAI footer; upgrading removes it and adds your branding.</p></details>
+      <details><summary>What does it cover?</summary><p>Site and project details, a hazard register, a Safe Work Method Statement, PPE requirements, key personnel and emergency procedures, and a crew sign-off sheet — exported as one PDF.</p></details>
+      <details><summary>Will it work on my phone on site?</summary><p>Yes. CompliAI runs in the browser and works on a phone, so you can build or tweak a plan from the ute.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="band price-band" id="pricing">
+  <div class="wrap">
+    <div class="kicker">Pricing</div>
+    <h2>Start free. Upgrade when it's earning its keep.</h2>
+    <p class="lede">No card to start. The free plan does the full job — paid plans make it yours.</p>
+    <div class="prices">
+      <div class="price">
+        <div class="tag">Free</div>
+        <div class="amt">$0</div>
+        <div class="per">forever</div>
+        <ul>
+          <li>Full SSSP builder</li>
+          <li>AI hazard &amp; SWMS drafting</li>
+          <li>PDF export</li>
+          <li>Small CompliAI footer</li>
+        </ul>
+        <a class="cta alt" href="sssp-builder.html">Start free</a>
+      </div>
+      <div class="price feature">
+        <div class="badge">Most popular</div>
+        <div class="tag">Solo</div>
+        <div class="amt">$29<small> NZD</small></div>
+        <div class="per">per month · or $290/yr</div>
+        <ul>
+          <li>Everything in Free</li>
+          <li>Remove the footer</li>
+          <li>Add your logo</li>
+          <li>Saved company profile</li>
+          <li>Save &amp; reuse past plans</li>
+        </ul>
+        <a class="cta" href="sssp-builder.html">Go Solo</a>
+      </div>
+      <div class="price">
+        <div class="tag">Company</div>
+        <div class="amt">$99<small> NZD</small></div>
+        <div class="per">per month</div>
+        <ul>
+          <li>Everything in Solo</li>
+          <li>Multiple users</li>
+          <li>Saved site &amp; job templates</li>
+          <li>All document types</li>
+        </ul>
+        <a class="cta alt" href="sssp-builder.html">Get Company</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>Your next SSSP is five minutes away.</h2>
+    <p>Describe the job, let CompliAI draft it, and walk onto site with the paperwork sorted.</p>
+    <a class="cta-lg" href="sssp-builder.html">Build your SSSP free →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-logo"><span class="mk">C</span><b>CompliAI</b></div>
+        <p class="disclaimer" style="margin-top:14px;">CompliAI is a drafting tool for Site-Specific Safety Plans. It produces a starting draft that must be reviewed and adapted to your actual site, gear and crew. It does not provide legal advice and does not guarantee compliance with the Health and Safety at Work Act 2015 or any other requirement. You remain responsible for the final plan.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:9px;">
+        <a href="#how">How it works</a>
+        <a href="#includes">What's included</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="sssp-builder.html">Build your SSSP</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 CompliAI · Made in New Zealand</span>
+      <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
