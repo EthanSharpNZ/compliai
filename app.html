@@ -74,16 +74,11 @@
         <label>Email</label>
         <input type="email" id="email" placeholder="you@company.co.nz" />
       </div>
-      <div class="field" style="margin-top:12px;">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="At least 6 characters" />
-      </div>
-      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn" id="signInBtn">Sign in</button>
-        <button class="btn alt" id="signUpBtn">Create account</button>
+      <div style="margin-top:16px;">
+        <button class="btn" id="magicBtn">Email me a sign-in link</button>
       </div>
       <div id="authMsg" class="note hide"></div>
-      <p class="muted" style="margin-top:14px;">New here? Enter an email and password and hit Create account.</p>
+      <p class="muted" style="margin-top:14px;">No password to remember — we'll email you a secure link. Open it on this device to sign in. New here? The same link creates your free account.</p>
     </div>
   </div>
 
@@ -121,29 +116,18 @@ async function init(){
   if(session){enterApp(session.user);}else{show("authView",true);}
 }
 
-/* ---- auth (email + password) ---- */
+/* ---- auth (magic link) ---- */
 function authMsg(t){const m=document.getElementById("authMsg");m.textContent=t;m.classList.remove("hide");}
-function creds(){return {email:document.getElementById("email").value.trim(),password:document.getElementById("password").value};}
-document.getElementById("signInBtn").addEventListener("click",async()=>{
-  const {email,password}=creds();
-  if(!email||!password){authMsg("Enter your email and password.");return;}
-  const b=document.getElementById("signInBtn");b.disabled=true;b.textContent="Signing in…";
-  const {data,error}=await sb.auth.signInWithPassword({email,password});
-  b.disabled=false;b.textContent="Sign in";
+document.getElementById("magicBtn").addEventListener("click",async()=>{
+  const email=document.getElementById("email").value.trim();
+  if(!email){authMsg("Enter your email and we'll send a sign-in link.");return;}
+  const b=document.getElementById("magicBtn");b.disabled=true;b.textContent="Sending…";
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+"/app.html"}});
+  b.disabled=false;b.textContent="Email me a sign-in link";
   if(error){authMsg(error.message);return;}
-  enterApp(data.user);
+  authMsg("Check your inbox — we've sent a sign-in link to "+email+". Open it on this device to continue.");
 });
-document.getElementById("signUpBtn").addEventListener("click",async()=>{
-  const {email,password}=creds();
-  if(!email||!password){authMsg("Enter an email and a password (6+ characters).");return;}
-  const b=document.getElementById("signUpBtn");b.disabled=true;b.textContent="Creating…";
-  const {data,error}=await sb.auth.signUp({email,password});
-  b.disabled=false;b.textContent="Create account";
-  if(error){authMsg(error.message);return;}
-  if(data.session){enterApp(data.user);return;}
-  const r=await sb.auth.signInWithPassword({email,password});
-  if(r.error){authMsg("Account created — now hit Sign in.");}else{enterApp(r.data.user);}
-});
+sb.auth.onAuthStateChange((event,session)=>{if(session&&document.getElementById("appView").classList.contains("hide")){enterApp(session.user);}});
 document.getElementById("signOut").addEventListener("click",async(e)=>{e.preventDefault();await sb.auth.signOut();location.reload();});
 
 function enterApp(user){
