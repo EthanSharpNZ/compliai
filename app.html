@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>CompliAI — My Jobs</title>
+<link rel="icon" href="favicon.svg?v=2" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3F3EF; --surface:#FFFFFF; --ink:#1A1B17; --ink-soft:#62655C;
+    --line:#E3E3DB; --hazard:#E2540B; --steel:#243137; --steel-soft:#46555C;
+    --brand:#0F766E; --brand-deep:#0B5A54; --brand-tint:#E6F2F0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .display{font-family:'Archivo',sans-serif;}
+  header{position:sticky;top:0;z-index:40;background:var(--steel);color:#fff;border-bottom:3px solid var(--brand);}
+  .bar{max-width:1000px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;}
+  .brand-logo{height:30px;width:auto;display:block;}
+  .bar-actions{display:flex;align-items:center;gap:14px;font-size:13px;color:#C3CDD2;}
+  .bar-actions a{color:#C3CDD2;text-decoration:none;}
+  .bar-actions a:hover{color:#fff;}
+  .wrap{max-width:1000px;margin:0 auto;padding:34px 22px 90px;}
+  h1{font-family:'Archivo';font-weight:800;font-size:26px;letter-spacing:-.01em;margin:0 0 6px;}
+  .lede{color:var(--ink-soft);margin:0 0 26px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;}
+  .field label{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;}
+  input[type=text],input[type=email]{width:100%;font-family:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);}
+  input:focus{outline:2px solid var(--brand);border-color:var(--brand);}
+  .btn{font-family:'Archivo';font-weight:700;font-size:14px;background:var(--brand);color:#fff;border:none;border-radius:9px;padding:11px 18px;cursor:pointer;}
+  .btn:hover{filter:brightness(1.06);}
+  .btn:disabled{opacity:.6;cursor:default;}
+  .btn.alt{background:transparent;color:var(--brand-deep);border:1.5px solid var(--line);}
+  .btn.small{font-size:12.5px;padding:7px 12px;}
+  .muted{color:var(--ink-soft);font-size:13px;}
+  .jobgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:18px;}
+  .job{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:6px;}
+  .job h3{font-family:'Archivo';font-weight:700;font-size:16px;margin:0;}
+  .job .meta{font-size:12.5px;color:var(--ink-soft);}
+  .job .row{display:flex;gap:8px;margin-top:10px;}
+  .cap{font-size:12.5px;color:var(--ink-soft);margin-top:8px;}
+  .note{background:var(--brand-tint);border-radius:9px;padding:11px 13px;font-size:13px;color:var(--brand-deep);margin-top:14px;}
+  .err{background:#FBEDE3;color:#9a3a08;border-radius:9px;padding:11px 13px;font-size:13px;margin-top:12px;}
+  .hide{display:none;}
+  .center{max-width:430px;margin:40px auto;}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <a class="brand" href="/"><img class="brand-logo" src="compliAI-logo-reversed.svg" alt="CompliAI" /></a>
+    <div class="bar-actions">
+      <a href="sssp-builder.html">New SSSP</a>
+      <span id="userEmail"></span>
+      <a href="#" id="signOut" class="hide">Sign out</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- LOGGED OUT -->
+  <div id="authView" class="center hide">
+    <h1>Sign in to CompliAI</h1>
+    <p class="lede">Save your jobs and manage them onsite. Free accounts get up to 3 active jobs — no card needed.</p>
+    <div class="card">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="you@company.co.nz" />
+      </div>
+      <div style="margin-top:14px;"><button class="btn" id="sendLink">Email me a sign-in link</button></div>
+      <div id="authMsg" class="note hide"></div>
+      <p class="muted" style="margin-top:14px;">We'll email you a one-time link — no password to remember.</p>
+    </div>
+  </div>
+
+  <!-- LOGGED IN -->
+  <div id="appView" class="hide">
+    <h1>My jobs</h1>
+    <p class="lede">Each job keeps its SSSP and onsite records together. Free plan: up to 3 active jobs.</p>
+
+    <div class="card">
+      <div class="field">
+        <label>Start a new job</label>
+        <input type="text" id="newTitle" placeholder="e.g. Reroof — 14 Pohutukawa Ave" />
+      </div>
+      <div style="margin-top:14px;"><button class="btn" id="createJob">Create job</button></div>
+      <div class="cap" id="capNote"></div>
+      <div id="appErr" class="err hide"></div>
+    </div>
+
+    <div id="jobs" class="jobgrid"></div>
+    <div id="emptyJobs" class="muted hide" style="margin-top:18px;">No saved jobs yet — create one above, or start a quick one-off from <a href="sssp-builder.html">New SSSP</a>.</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://qewsprapekvvtlsbyaed.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_otdr8vJvfweQ8yjlYD8rvg_LS1EvYqT";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const FREE_CAP=3;
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function show(id,on){document.getElementById(id).classList.toggle("hide",!on);}
+
+async function init(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(session){enterApp(session.user);}else{show("authView",true);}
+}
+
+/* ---- auth ---- */
+document.getElementById("sendLink").addEventListener("click",async()=>{
+  const email=document.getElementById("email").value.trim();
+  const msg=document.getElementById("authMsg");
+  if(!email){msg.textContent="Enter your email first.";msg.classList.remove("hide");return;}
+  const btn=document.getElementById("sendLink");btn.disabled=true;btn.textContent="Sending…";
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:window.location.origin+"/app.html"}});
+  if(error){msg.textContent="Couldn't send the link: "+error.message;}
+  else{msg.textContent="Check your email for a sign-in link from CompliAI.";}
+  msg.classList.remove("hide");btn.disabled=false;btn.textContent="Email me a sign-in link";
+});
+document.getElementById("signOut").addEventListener("click",async(e)=>{e.preventDefault();await sb.auth.signOut();location.reload();});
+
+function enterApp(user){
+  show("authView",false);show("appView",true);
+  document.getElementById("userEmail").textContent=user.email;
+  show("signOut",true);
+  loadJobs();
+}
+
+/* ---- jobs ---- */
+async function loadJobs(){
+  const wrap=document.getElementById("jobs");
+  const {data,error}=await sb.from("jobs").select("id,title,site_address,status,updated_at").order("updated_at",{ascending:false});
+  if(error){showErr(error.message);return;}
+  const active=data.filter(j=>j.status==="active");
+  document.getElementById("capNote").textContent=active.length+" of "+FREE_CAP+" active jobs used"+(active.length>=FREE_CAP?" — archive one to add another, or upgrade.":".");
+  show("emptyJobs",data.length===0);
+  wrap.innerHTML=data.map(jobCard).join("");
+}
+function jobCard(j){
+  const when=j.updated_at?new Date(j.updated_at).toLocaleDateString("en-NZ",{day:"2-digit",month:"short"}):"";
+  return `<div class="job"><h3>${esc(j.title)}</h3><div class="meta">${esc(j.site_address)||"No site address yet"}</div><div class="meta">${j.status==="archived"?"Archived":"Active"} · updated ${when}</div><div class="row"><a class="btn small" href="sssp-builder.html?job=${j.id}">Open</a><button class="btn small alt" onclick="toggleArchive('${j.id}','${j.status}')">${j.status==="archived"?"Reactivate":"Archive"}</button></div></div>`;
+}
+document.getElementById("createJob").addEventListener("click",async()=>{
+  const title=document.getElementById("newTitle").value.trim()||"Untitled job";
+  const {data:{session}}=await sb.auth.getSession();
+  const {data,error}=await sb.from("jobs").insert({owner_id:session.user.id,title}).select("id").single();
+  if(error){showErr(error.message);return;}
+  location.href="sssp-builder.html?job="+data.id;
+});
+async function toggleArchive(id,status){
+  const next=status==="archived"?"active":"archived";
+  const {error}=await sb.from("jobs").update({status:next}).eq("id",id);
+  if(error){showErr(error.message);return;}
+  loadJobs();
+}
+function showErr(m){const e=document.getElementById("appErr");e.textContent=m;e.classList.remove("hide");}
+
+init();
+</script>
+</body>
+</html>

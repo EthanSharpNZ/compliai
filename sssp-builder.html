@@ -838,5 +838,70 @@ renderSubbieChips();
 renderToolboxInputs();
 renderPreview();
 </script>
+<script>
+/* ---- account / saved-job integration (only active when ?job=ID is present) ---- */
+(function(){
+  var jobId=new URLSearchParams(location.search).get("job");
+  if(!jobId) return; // free, no-login builder — do nothing
+  var SB_URL="https://qewsprapekvvtlsbyaed.supabase.co";
+  var SB_KEY="sb_publishable_otdr8vJvfweQ8yjlYD8rvg_LS1EvYqT";
+  var sb, loading=true, saveTimer=null;
+  var s=document.createElement("script");
+  s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+  s.onload=start; document.head.appendChild(s);
+
+  function setStatus(t){
+    var el=document.getElementById("jobStatus");
+    if(!el){
+      var bar=document.querySelector(".bar-actions");
+      if(!bar) return;
+      var link=document.createElement("a");
+      link.href="app.html"; link.textContent="← My jobs";
+      link.style.cssText="color:#C3CDD2;text-decoration:none;font-size:12.5px;";
+      el=document.createElement("span"); el.id="jobStatus";
+      el.style.cssText="font-size:12px;color:#9FB0B7;";
+      bar.insertBefore(el,bar.firstChild);
+      bar.insertBefore(link,bar.firstChild);
+    }
+    el.textContent=t;
+  }
+  function getDeep(path){ return path.split(".").reduce(function(o,k){return o&&o[k];}, state); }
+  function hydrate(plan){
+    Object.keys(plan).forEach(function(k){ state[k]=plan[k]; });
+    renderHazInputs();renderStepInputs();renderPpeChips();renderCrewInputs();
+    renderRulesInputs();renderEquipInputs();renderTagtestInputs();renderSdsInputs();
+    renderTrainInputs();renderSubbieInputs();renderSubbieChips();renderToolboxInputs();
+    document.querySelectorAll("[data-k]").forEach(function(el){
+      var v=getDeep(el.getAttribute("data-k"));
+      if(v!==undefined&&v!==null&&typeof v!=="object") el.value=v;
+    });
+    renderPreview();
+  }
+  function scheduleSave(){
+    if(loading) return;
+    setStatus("Saving…");
+    clearTimeout(saveTimer);
+    saveTimer=setTimeout(save,1200);
+  }
+  function save(){
+    var title=((state.site.company?state.site.company+" — ":"")+(state.site.project||"Untitled job")).trim();
+    sb.from("jobs").update({ plan:state, title:title, site_address:state.site.address||null, updated_at:new Date().toISOString() })
+      .eq("id",jobId).then(function(r){ setStatus(r.error?"Save failed":"Saved ✓"); });
+  }
+  async function start(){
+    sb=supabase.createClient(SB_URL,SB_KEY);
+    setStatus("Loading…");
+    var sess=await sb.auth.getSession();
+    if(!sess.data.session){ location.href="app.html"; return; }
+    var res=await sb.from("jobs").select("plan,title").eq("id",jobId).single();
+    if(res.error||!res.data){ setStatus("Couldn't open this job"); loading=false; return; }
+    if(res.data.plan && Object.keys(res.data.plan).length){ try{ hydrate(res.data.plan); }catch(e){} }
+    loading=false;
+    setStatus("Saved ✓");
+    var orig=renderPreview;
+    renderPreview=function(){ orig(); scheduleSave(); };
+  }
+})();
+</script>
 </body>
 </html>
