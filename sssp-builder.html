@@ -1149,14 +1149,22 @@ renderPreview();
     jobOrgId=res.data.org_id||null;
     if(res.data.plan && Object.keys(res.data.plan).length){ try{ hydrate(res.data.plan); }catch(e){} }
     loading=false;
+    var orig=renderPreview;
+    renderPreview=function(){ try{orig();}catch(e){} scheduleSave(); };
+    // Robust save: every keystroke/edit in the builder schedules a save directly,
+    // independent of the render path (so a render error can't silently stop saving).
+    var bc=document.getElementById("builderCol");
+    if(bc){ bc.addEventListener("input",scheduleSave); bc.addEventListener("change",scheduleSave); }
+    // Flush any pending save the moment the user leaves, so nothing is lost on quick navigation.
+    function flushSave(){ if(saveTimer){ clearTimeout(saveTimer); saveTimer=null; save(); } }
+    window.addEventListener("pagehide",flushSave);
+    document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="hidden") flushSave(); });
     await applyOrgDefaults();
     setStatus("Saved ✓");
     injectJobLinks();
     injectContactPicker();
     injectEmailReport();
     loadRecords();
-    var orig=renderPreview;
-    renderPreview=function(){ orig(); scheduleSave(); };
   }
 })();
 </script>
