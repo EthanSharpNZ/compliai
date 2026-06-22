@@ -11,6 +11,15 @@ export default async function handler(req, res) {
     return;
   }
 
+  // Abuse guard: only accept calls coming from our own site, so the endpoint
+  // can't be used as a free public LLM gateway from other origins.
+  const origin = req.headers.origin || req.headers.referer || "";
+  const ALLOWED = ["compliai.co.nz", "localhost", "127.0.0.1", ".vercel.app"];
+  if (origin && !ALLOWED.some((d) => origin.includes(d))) {
+    res.status(403).json({ error: "forbidden_origin" });
+    return;
+  }
+
   // Vercel parses JSON bodies automatically; guard just in case.
   let body = req.body;
   if (typeof body === "string") {
@@ -19,6 +28,10 @@ export default async function handler(req, res) {
   const prompt = body && body.prompt;
   if (!prompt || typeof prompt !== "string") {
     res.status(400).json({ error: "missing_prompt" });
+    return;
+  }
+  if (prompt.length > 8000) {
+    res.status(400).json({ error: "prompt_too_long" });
     return;
   }
 
