@@ -125,7 +125,7 @@ function show(id,on){document.getElementById(id).classList.toggle("hide",!on);}
 /* ---- reusable signature pad (canvas, no library) ---- */
 function makeSignaturePad(canvas){
   const ctx=canvas.getContext("2d"); let drawing=false, dirty=false;
-  function size(){const r=canvas.getBoundingClientRect();const d=window.devicePixelRatio||1;canvas.width=r.width*d;canvas.height=r.height*d;ctx.scale(d,d);ctx.lineWidth=2.2;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#1A1B17";}
+  function size(){const r=canvas.getBoundingClientRect();const d=window.devicePixelRatio||1;canvas.width=r.width*d;canvas.height=r.height*d;ctx.setTransform(1,0,0,1,0,0);ctx.scale(d,d);ctx.lineWidth=2.2;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#1A1B17";}
   function pos(e){const r=canvas.getBoundingClientRect();const t=e.touches&&e.touches[0];const cx=t?t.clientX:e.clientX,cy=t?t.clientY:e.clientY;return{x:cx-r.left,y:cy-r.top};}
   function start(e){drawing=true;dirty=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);}
   function move(e){if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();}
@@ -144,7 +144,8 @@ async function init(){
   const {data,error}=await sb.from("jobs").select("title").eq("id",jobId).single();
   if(error||!data){document.getElementById("loading").textContent="Couldn't open this job.";return;}
   document.getElementById("jobName").textContent=data.title||"Job";
-  document.getElementById("date").value=new Date().toISOString().slice(0,10);
+  const d=new Date();const localDate=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  document.getElementById("date").value=localDate;
   show("loading",false);show("form",true);
 }
 /* ---- collect signatures flow ---- */
@@ -174,12 +175,14 @@ function openSig(name){
   document.getElementById("sigWho").textContent=name;
   show("sigModal",true);
   if(!sigPad)sigPad=makeSignaturePad(document.getElementById("sigCanvas"));
-  sigPad.resize();sigPad.clear();
+  requestAnimationFrame(()=>{sigPad.resize();sigPad.clear();});
 }
+window.addEventListener("resize",()=>{if(sigPad&&!document.getElementById("sigModal").classList.contains("hide")){sigPad.resize();sigPad.clear();}});
+window.addEventListener("orientationchange",()=>{if(sigPad&&!document.getElementById("sigModal").classList.contains("hide")){sigPad.resize();sigPad.clear();}});
 document.getElementById("sigClear").addEventListener("click",()=>sigPad&&sigPad.clear());
 document.getElementById("sigCancel").addEventListener("click",()=>show("sigModal",false));
 document.getElementById("sigSave").addEventListener("click",()=>{
-  if(!sigPad||sigPad.isEmpty()){alert("Please sign first, or tap Cancel.");return;}
+  if(!sigPad||document.getElementById("sigCanvas").clientWidth===0||sigPad.isEmpty()){alert("Please add a signature.");return;}
   sigs[sigActiveName]={dataUrl:sigPad.toDataURL(),signedAt:new Date().toISOString()};
   show("sigModal",false);
   renderSigList();
@@ -195,6 +198,7 @@ document.getElementById("submitBtn").addEventListener("click",async()=>{
   const signatures=attendees.filter(nm=>sigs[nm]).map(nm=>({name:nm,dataUrl:sigs[nm].dataUrl,signedAt:sigs[nm].signedAt}));
   const payload={date:document.getElementById("date").value,topic,presenter,points:document.getElementById("points").value.trim(),attendees,signatures,actions:document.getElementById("actions").value.trim()};
   const {data:{session}}=await sb.auth.getSession();
+  if(!session||!session.user){btn.disabled=false;btn.textContent="Save toolbox talk to this job";msg.className="err";msg.textContent="Your session expired — please open the sign-in link again.";show("msg",true);return;}
   const {error}=await sb.from("records").insert({job_id:jobId,type:"toolbox_talk",payload,created_by:session.user.id});
   btn.disabled=false;btn.textContent="Save toolbox talk to this job";
   if(error){msg.className="err";msg.textContent="Couldn't save: "+error.message;show("msg",true);return;}

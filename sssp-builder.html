@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex" />
 <link rel="icon" href="favicon.svg?v=2" type="image/svg+xml" />
 <link rel="manifest" href="/manifest.json" />
 <meta name="theme-color" content="#243137" />
@@ -50,9 +51,9 @@
   .p-rules-list{margin:0;padding-left:22px;}
   .p-rules-list li{margin:0 0 6px;line-height:1.45;}
   /* digital onsite records stay separate from the printed SSSP */
-  @media print{ #dsecChecks,#dsecToolbox,#dsecIncidents{display:none !important;} }
+  @media print{ #dsecRecChecks,#dsecRecToolbox,#dsecRecIncidents{display:none !important;} }
   /* crew sign-off IS a signed record — it should appear on the printed SSSP */
-  @media print{ #dsecSignoff{display:block !important;break-inside:avoid;} }
+  @media print{ #dsecRecSignoff{display:block !important;break-inside:avoid;} }
   .brand h1{font-family:'Archivo';font-weight:800;font-size:19px;margin:0;letter-spacing:-.01em;line-height:1;}
   .brand .eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#A9B6BC;margin-top:3px;}
   .bar-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;min-width:0;justify-content:flex-end;}
@@ -569,8 +570,11 @@ const state = {
   incident:{reportTo:"",phone:"",procedure:""},
   pro:false
 };
+// pristine snapshot of the default shape — used to guarantee every nested
+// object/array exists when hydrating an older/partial saved plan.
+const DEFAULT_STATE=JSON.parse(JSON.stringify(state));
 
-function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function esc(s){return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function setDeep(path,val){const p=path.split(".");let o=state;for(let i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=val;}
 function fmtDate(d){if(!d)return "—";const x=new Date(d+"T00:00:00");if(isNaN(x))return d;return x.toLocaleDateString("en-NZ",{day:"2-digit",month:"short",year:"numeric"});}
 
@@ -684,6 +688,7 @@ async function callClaude(prompt){
 async function draftHazards(){
   const scope=state.scope.trim();
   const btn=document.getElementById("aiBtn"),lbl=document.getElementById("aiBtnLabel");
+  if(btn.disabled)return;
   if(scope.length<12){lbl.textContent="Describe the job first ↑";setTimeout(()=>lbl.textContent="Draft hazards from the job",2200);return;}
   btn.disabled=true;lbl.textContent="Reading the job…";
   try{
@@ -702,6 +707,7 @@ async function draftHazards(){
 async function draftSteps(){
   const scope=state.scope.trim();
   const btn=document.getElementById("swmsBtn"),lbl=document.getElementById("swmsBtnLabel");
+  if(btn.disabled)return;
   if(scope.length<12){lbl.textContent="Describe the job first ↑";setTimeout(()=>lbl.textContent="Draft method steps from the job",2200);return;}
   btn.disabled=true;lbl.textContent="Sequencing the job…";
   try{
@@ -912,11 +918,28 @@ renderPreview();
     }
     start();
   }
+  function isPlanBlank(plan){
+    // An "empty" job: no plan, or a plan with no site address and no scope.
+    if(!plan||typeof plan!=="object") return true;
+    var site=plan.site||{};
+    var addr=(site.address||"").trim();
+    var scope=(plan.scope||"").trim();
+    return !addr&&!scope;
+  }
   async function autoCreateJob(){
     try{
       var sess=await sb.auth.getSession(); var uid=sess.data.session.user.id;
       var m=await sb.from("org_members").select("org_id").eq("user_id",uid).limit(1).maybeSingle();
       var org=m.data&&m.data.org_id; if(!org) return false;
+      // Reuse the user's most recent empty/blank Untitled job instead of
+      // creating a fresh one every time the builder opens with no ?job=.
+      var prev=await sb.from("jobs").select("id,plan").eq("org_id",org).eq("owner_id",uid).eq("status","active").order("updated_at",{ascending:false}).limit(1);
+      var existing=prev&&prev.data&&prev.data[0];
+      if(existing&&isPlanBlank(existing.plan)){
+        jobId=existing.id;
+        history.replaceState(null,"","sssp-builder.html?job="+jobId);
+        return true;
+      }
       var ins=await sb.from("jobs").insert({owner_id:uid,org_id:org,title:"Untitled job"}).select("id").single();
       if(ins.error||!ins.data) return false;
       jobId=ins.data.id;
@@ -937,8 +960,31 @@ renderPreview();
     el.textContent=t;
   }
   function getDeep(path){ return path.split(".").reduce(function(o,k){return o&&o[k];}, state); }
+  function deepMerge(target,src){
+    // objects merge recursively; arrays and scalars replace.
+    if(src===null||src===undefined) return target;
+    if(Array.isArray(target)||typeof target!=="object"){ return src; }
+    if(typeof src!=="object"||Array.isArray(src)){ return target; }
+    Object.keys(src).forEach(function(k){
+      var sv=src[k], tv=target[k];
+      if(tv&&typeof tv==="object"&&!Array.isArray(tv)&&sv&&typeof sv==="object"&&!Array.isArray(sv)){
+        deepMerge(tv,sv);
+      }else if(sv!==undefined){
+        target[k]=sv;
+      }
+    });
+    return target;
+  }
   function hydrate(plan){
-    Object.keys(plan).forEach(function(k){ state[k]=plan[k]; });
+    // Deep-merge the saved plan onto a fresh clone of DEFAULT_STATE so every
+    // nested object/array always exists, even for older/partial saved plans.
+    try{
+      var merged=JSON.parse(JSON.stringify(DEFAULT_STATE));
+      if(plan&&typeof plan==="object") deepMerge(merged,plan);
+      Object.keys(merged).forEach(function(k){ state[k]=merged[k]; });
+    }catch(e){
+      Object.keys(plan||{}).forEach(function(k){ state[k]=plan[k]; });
+    }
     renderHazInputs();renderStepInputs();renderPpeChips();renderCrewInputs();
     renderRulesInputs();renderEquipInputs();renderTagtestInputs();renderSdsInputs();
     renderTrainInputs();renderSubbieInputs();renderSubbieChips();renderToolboxInputs();
@@ -955,9 +1001,10 @@ renderPreview();
     saveTimer=setTimeout(save,1200);
   }
   function save(){
+    if(!sb||!jobId)return;
     var title=((state.site.company?state.site.company+" — ":"")+(state.site.project||"Untitled job")).trim();
     sb.from("jobs").update({ plan:state, title:title, site_address:state.site.address||null, updated_at:new Date().toISOString() })
-      .eq("id",jobId).then(function(r){ setStatus(r.error?"Save failed":"Saved ✓"); });
+      .eq("id",jobId).then(function(r){ setStatus(r.error?"Save failed":"Saved ✓"); }).catch(function(){});
   }
   function injectJobLinks(){
     var bar=document.querySelector(".bar-actions");
@@ -993,14 +1040,15 @@ renderPreview();
     var talks=rows.filter(function(x){return x.type==="toolbox_talk";});
     var incs=rows.filter(function(x){return x.type==="incident";});
     var signoffs=rows.filter(function(x){return x.type==="signoff";});
-    fillSec("dsecChecks","Daily pre-start checks","<th>Date</th><th>Plant</th><th>Operator</th><th>Result</th><th>Defects</th>",
+    function isImgData(v){return typeof v==="string"&&/^data:image\//.test(v);}
+    fillSec("dsecRecChecks","Daily pre-start checks","<th>Date</th><th>Plant</th><th>Operator</th><th>Result</th><th>Defects</th>",
       checks.length?checks.map(function(row){var p=row.payload||{};return '<tr><td>'+esc(p.date||"—")+'</td><td>'+esc(p.item||"—")+'</td><td>'+esc(p.operator||"—")+'</td><td>'+esc(p.result||"—")+'</td><td>'+esc(p.defects||"—")+'</td></tr>';}).join(""):"");
-    fillSec("dsecToolbox","Toolbox talks","<th>Date</th><th>Topic</th><th>Presenter</th><th>Attendees</th>",
-      talks.length?talks.map(function(row){var p=row.payload||{};var att=(p.attendees||[]).join(", ");return '<tr><td>'+esc(p.date||"—")+'</td><td>'+esc(p.topic||"—")+'</td><td>'+esc(p.presenter||"—")+'</td><td>'+esc(att||"—")+'</td></tr>';}).join(""):"");
-    fillSec("dsecIncidents","Incident &amp; near-miss reports","<th>When</th><th>Type</th><th>Location</th><th>What happened</th><th>Notifiable</th>",
+    fillSec("dsecRecToolbox","Toolbox talks","<th>Date</th><th>Topic</th><th>Presenter</th><th>Attendees</th><th>Signed</th>",
+      talks.length?talks.map(function(row){var p=row.payload||{};var att=(p.attendees||[]).join(", ");var sigs=Array.isArray(p.signatures)?p.signatures:[];var thumbs=sigs.map(function(sg){return (sg&&isImgData(sg.dataUrl))?'<img src="'+esc(sg.dataUrl)+'" height="28" alt="'+esc((sg.name||"signature"))+'" style="margin:1px 3px 1px 0;"/>':"";}).join("");var signedCell=sigs.length?(esc(String(sigs.length))+(thumbs?'<div>'+thumbs+'</div>':"")):"—";return '<tr><td>'+esc(p.date||"—")+'</td><td>'+esc(p.topic||"—")+'</td><td>'+esc(p.presenter||"—")+'</td><td>'+esc(att||"—")+'</td><td>'+signedCell+'</td></tr>';}).join(""):"");
+    fillSec("dsecRecIncidents","Incident &amp; near-miss reports","<th>When</th><th>Type</th><th>Location</th><th>What happened</th><th>Notifiable</th>",
       incs.length?incs.map(function(row){var p=row.payload||{};var w=(p.datetime||"").replace("T"," ");return '<tr><td>'+esc(w||"—")+'</td><td>'+esc(p.type||"—")+'</td><td>'+esc(p.location||"—")+'</td><td>'+esc(p.description||"—")+'</td><td>'+esc(p.notifiable||"—")+'</td></tr>';}).join(""):"");
-    fillSec("dsecSignoff","Plan sign-off","<th>Name</th><th>Role</th><th>Date</th><th>Signature</th>",
-      signoffs.length?signoffs.map(function(row){var p=row.payload||{};var img=p.signature?'<img src="'+esc(p.signature)+'" height="40" alt="signature"/>':"—";return '<tr><td>'+esc(p.name||"—")+'</td><td>'+esc(p.role||"—")+'</td><td>'+esc(p.date||"—")+'</td><td>'+img+'</td></tr>';}).join(""):"");
+    fillSec("dsecRecSignoff","Plan sign-off","<th>Name</th><th>Role</th><th>Date</th><th>Signature</th>",
+      signoffs.length?signoffs.map(function(row){var p=row.payload||{};var img=isImgData(p.signature)?'<img src="'+esc(p.signature)+'" height="40" alt="signature"/>':"—";return '<tr><td>'+esc(p.name||"—")+'</td><td>'+esc(p.role||"—")+'</td><td>'+esc(p.date||"—")+'</td><td>'+img+'</td></tr>';}).join(""):"");
   }
   /* ---- saved-contacts picker for the main contractor ---- */
   var jobOrgId=null, contactPickEl=null, contactMsgEl=null;

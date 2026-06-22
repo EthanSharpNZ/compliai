@@ -241,7 +241,7 @@ const SUPABASE_ANON_KEY="sb_publishable_otdr8vJvfweQ8yjlYD8rvg_LS1EvYqT";
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const FREE_CAP=3;
 const SEAT_LIMITS={free:1,crew:4,company:16,enterprise:999};
-function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function esc(s){return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function show(id,on){document.getElementById(id).classList.toggle("hide",!on);}
 
 let currentUser=null;       // {id,email}
@@ -267,7 +267,10 @@ sb.auth.onAuthStateChange((event,session)=>{if(session&&document.getElementById(
 document.getElementById("signOut").addEventListener("click",async(e)=>{e.preventDefault();await sb.auth.signOut();location.reload();});
 
 /* ---- app entry ---- */
+let bootstrapped=false;
 async function enterApp(user){
+  if(bootstrapped)return;   // idempotent: init() and onAuthStateChange can both call this
+  bootstrapped=true;
   currentUser=user;
   show("authView",false);show("appView",true);
   document.getElementById("userEmail").textContent=user.email;

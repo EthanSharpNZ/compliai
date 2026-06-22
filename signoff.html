@@ -98,7 +98,7 @@ function show(id,on){document.getElementById(id).classList.toggle("hide",!on);}
 /* ---- reusable signature pad (canvas, no library) ---- */
 function makeSignaturePad(canvas){
   const ctx=canvas.getContext("2d"); let drawing=false, dirty=false;
-  function size(){const r=canvas.getBoundingClientRect();const d=window.devicePixelRatio||1;canvas.width=r.width*d;canvas.height=r.height*d;ctx.scale(d,d);ctx.lineWidth=2.2;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#1A1B17";}
+  function size(){const r=canvas.getBoundingClientRect();const d=window.devicePixelRatio||1;canvas.width=r.width*d;canvas.height=r.height*d;ctx.setTransform(1,0,0,1,0,0);ctx.scale(d,d);ctx.lineWidth=2.2;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#1A1B17";}
   function pos(e){const r=canvas.getBoundingClientRect();const t=e.touches&&e.touches[0];const cx=t?t.clientX:e.clientX,cy=t?t.clientY:e.clientY;return{x:cx-r.left,y:cy-r.top};}
   function start(e){drawing=true;dirty=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);}
   function move(e){if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();}
@@ -122,19 +122,22 @@ async function init(){
   document.getElementById("date").value=new Date().toISOString().slice(0,10);
   show("loading",false);show("form",true);
   sigPad=makeSignaturePad(document.getElementById("sigCanvas"));
-  sigPad.resize();
+  requestAnimationFrame(()=>{sigPad.resize();});
 }
+window.addEventListener("resize",()=>{if(sigPad){sigPad.resize();sigPad.clear();}});
+window.addEventListener("orientationchange",()=>{if(sigPad){sigPad.resize();sigPad.clear();}});
 document.getElementById("sigClear").addEventListener("click",()=>sigPad&&sigPad.clear());
 document.getElementById("submitBtn").addEventListener("click",async()=>{
   const name=document.getElementById("name").value.trim();
   const role=document.getElementById("role").value.trim();
   const msg=document.getElementById("msg");
   if(!name){msg.className="err";msg.textContent="Enter your name.";show("msg",true);return;}
-  if(!sigPad||sigPad.isEmpty()){msg.className="err";msg.textContent="Please sign in the box above.";show("msg",true);return;}
+  if(!sigPad||document.getElementById("sigCanvas").clientWidth===0||sigPad.isEmpty()){msg.className="err";msg.textContent="Please add a signature.";show("msg",true);return;}
   show("msg",false);
   const btn=document.getElementById("submitBtn");btn.disabled=true;btn.textContent="Saving…";
   const payload={name,role,date:document.getElementById("date").value,signature:sigPad.toDataURL()};
   const {data:{session}}=await sb.auth.getSession();
+  if(!session||!session.user){btn.disabled=false;btn.textContent="Sign & confirm";msg.className="err";msg.textContent="Your session expired — please open the sign-in link again.";show("msg",true);return;}
   const {error}=await sb.from("records").insert({job_id:jobId,type:"signoff",payload,created_by:session.user.id});
   btn.disabled=false;btn.textContent="Sign & confirm";
   if(error){msg.className="err";msg.textContent="Couldn't save: "+error.message;show("msg",true);return;}

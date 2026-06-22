@@ -150,7 +150,8 @@ async function init(){
   document.getElementById("item").innerHTML=opts+`<option value="__other">Other / not listed…</option>`;
   document.getElementById("item").addEventListener("change",e=>{document.getElementById("itemOtherWrap").style.display=e.target.value==="__other"?"":"none";});
   if(!opts){document.getElementById("item").value="__other";document.getElementById("itemOtherWrap").style.display="";}
-  document.getElementById("date").value=new Date().toISOString().slice(0,10);
+  const d=new Date();const localDate=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  document.getElementById("date").value=localDate;
   renderChecks();
   show("loading",false);show("form",true);
 }
@@ -168,6 +169,7 @@ document.getElementById("submitBtn").addEventListener("click",async()=>{
     defects:document.getElementById("defects").value.trim(),result:document.getElementById("result").value,
     signedBy:document.getElementById("signedBy").value.trim()||operator};
   const {data:{session}}=await sb.auth.getSession();
+  if(!session||!session.user){btn.disabled=false;btn.textContent="Save check to this job";msg.className="err";msg.textContent="Your session expired — please open the sign-in link again.";show("msg",true);return;}
   const {error}=await sb.from("records").insert({job_id:jobId,type:"prestart_check",payload,created_by:session.user.id});
   btn.disabled=false;btn.textContent="Save check to this job";
   if(error){msg.className="err";msg.textContent="Couldn't save: "+error.message;show("msg",true);return;}

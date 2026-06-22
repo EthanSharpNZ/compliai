@@ -172,7 +172,21 @@ function anyTicked(){return state.inj.some(Boolean)||state.inc.some(Boolean);}
 function renderChk(listId,arr,items){
   document.getElementById(listId).innerHTML=items.map((t,i)=>`<label class="chk"><input type="checkbox" ${arr[i]?"checked":""} onchange="tick('${listId}',${i},this.checked)"><span>${esc(t)}</span></label>`).join("");
 }
-function tick(listId,i,v){ (listId==="injList"?state.inj:state.inc)[i]=v; show("notifFlag",anyTicked()); if(v){var sel=document.getElementById("notified"); if(sel.value==="Not required") sel.value="To be notified ASAP"; document.getElementById("preserved").value="Yes — left undisturbed";} }
+const NOTIFIED_DEFAULT="Not required";
+const PRESERVED_DEFAULT="N/A — not a notifiable event";
+function tick(listId,i,v){
+  (listId==="injList"?state.inj:state.inc)[i]=v;
+  const any=anyTicked();
+  show("notifFlag",any);
+  var sel=document.getElementById("notified"); var pre=document.getElementById("preserved");
+  if(any){
+    if(sel.value===NOTIFIED_DEFAULT) sel.value="To be notified ASAP";
+    if(pre.value===PRESERVED_DEFAULT) pre.value="Yes — left undisturbed";
+  } else {
+    if(sel.value==="To be notified ASAP") sel.value=NOTIFIED_DEFAULT;
+    if(pre.value==="Yes — left undisturbed") pre.value=PRESERVED_DEFAULT;
+  }
+}
 async function init(){
   if(!jobId){document.getElementById("loading").textContent="No job specified.";return;}
   const {data:{session}}=await sb.auth.getSession();
@@ -180,7 +194,8 @@ async function init(){
   const {data,error}=await sb.from("jobs").select("title").eq("id",jobId).single();
   if(error||!data){document.getElementById("loading").textContent="Couldn't open this job.";return;}
   document.getElementById("jobName").textContent=data.title||"Job";
-  document.getElementById("datetime").value=new Date().toISOString().slice(0,16);
+  const d=new Date();const localDt=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  document.getElementById("datetime").value=localDt;
   renderChk("injList",state.inj,INJ);renderChk("incList",state.inc,INC);
   show("loading",false);show("form",true);
 }
@@ -199,8 +214,9 @@ document.getElementById("submitBtn").addEventListener("click",async()=>{
     notifiableInjury,notifiableIncident,isNotifiable,
     scenePreserved:document.getElementById("preserved").value,worksafeNotified:notifiedSel,worksafeRef:document.getElementById("wsref").value.trim(),
     reportedTo:document.getElementById("reportedTo").value.trim(),reportedBy:document.getElementById("reportedBy").value.trim(),
-    notifiable:isNotifiable?(notifiedSel):"No"};
+    notifiable:isNotifiable?"Yes":"No",notifiedStatus:notifiedSel};
   const {data:{session}}=await sb.auth.getSession();
+  if(!session||!session.user){btn.disabled=false;btn.textContent="Save incident to this job";msg.className="err";msg.textContent="Your session expired — please open the sign-in link again.";show("msg",true);return;}
   const {error}=await sb.from("records").insert({job_id:jobId,type:"incident",payload,created_by:session.user.id});
   btn.disabled=false;btn.textContent="Save incident to this job";
   if(error){msg.className="err";msg.textContent="Couldn't save: "+error.message;show("msg",true);return;}
