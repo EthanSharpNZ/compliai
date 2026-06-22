@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8" />
 <script>document.documentElement.className+=' js';</script>
-<noscript><style>#intro{display:none!important;}</style></noscript>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SSSP Template NZ — Free Site-Specific Safety Plan Builder | CompliAI</title>
 <meta name="description" content="Build a Site-Specific Safety Plan free, then run it onsite. CompliAI's AI drafts your hazard register, SWMS and PPE, and your whole crew runs daily pre-starts, toolbox talks and sign-offs from their phone. Made for NZ & AU trades." />
@@ -271,22 +270,16 @@
     .trade{padding:8px 13px;font-size:13px;}
   }
 
-  /* ---------- motion: scroll reveal + hover + float ---------- */
+  /* ---------- motion: one quiet fade-up + restrained hovers ---------- */
   .step,.feat,.price{transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;}
-  .step:hover,.price:hover{transform:translateY(-4px);box-shadow:0 18px 40px -24px rgba(0,0,0,.28);}
-  .feat:hover{transform:translateY(-3px);}
-  .trade{transition:transform .14s ease, border-color .14s ease, background .14s ease;}
-  .trade:hover{transform:translateY(-2px);border-color:var(--brand);background:var(--brand-tint);}
+  .step:hover,.price:hover{transform:translateY(-3px);box-shadow:0 14px 32px -26px rgba(0,0,0,.22);}
+  .feat:hover{background:#222e33;}
   @media (prefers-reduced-motion: no-preference){
-    html.js .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1);}
+    html.js .reveal{opacity:0;transform:translateY(12px);transition:opacity .6s ease, transform .6s cubic-bezier(.2,.7,.2,1);}
     html.js .reveal.in{opacity:1;transform:none;}
-    html.js .reveal.d1{transition-delay:.07s;} html.js .reveal.d2{transition-delay:.14s;}
-    html.js .reveal.d3{transition-delay:.21s;} html.js .reveal.d4{transition-delay:.28s;}
-    @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-    @keyframes floaty2{0%,100%{transform:translateY(0)}50%{transform:translateY(-19px)}}
-    @keyframes pulseArrow{0%,100%{opacity:.55;transform:translateY(0)}50%{opacity:1;transform:translateY(3px)}}
+    html.js .reveal.d1{transition-delay:.05s;} html.js .reveal.d2{transition-delay:.1s;}
+    html.js .reveal.d3{transition-delay:.15s;} html.js .reveal.d4{transition-delay:.2s;}
     @keyframes caret{50%{opacity:0}}
-    .xform .arrow{animation:pulseArrow 1.9s ease-in-out infinite;}
   }
 
   /* ---------- phone mockups ---------- */
@@ -294,11 +287,7 @@
   .phone{width:232px;flex:none;border-radius:36px;background:#0e1519;padding:11px;position:relative;box-shadow:0 44px 80px -36px rgba(0,0,0,.6), inset 0 0 0 2px #2b3a41;}
   .phone::before{content:"";position:absolute;top:12px;left:50%;transform:translateX(-50%);width:82px;height:19px;background:#0e1519;border-radius:0 0 14px 14px;z-index:6;}
   .phone .screen{border-radius:26px;overflow:hidden;background:var(--paper);height:472px;display:flex;flex-direction:column;}
-  @media (prefers-reduced-motion: no-preference){
-    .phone.f1{animation:floaty 6s ease-in-out infinite;}
-    .phone.f2{animation:floaty2 7.2s ease-in-out infinite .4s;}
-    .phone.f3{animation:floaty 6.6s ease-in-out infinite .9s;}
-  }
+  .phone.f2{transform:translateY(-18px);}
   .scr-top{background:var(--steel);color:#fff;border-bottom:3px solid var(--brand);padding:13px 14px 11px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .scr-top img{height:15px;width:auto;display:block;}
   .scr-top .bk{font-size:10.5px;color:#C3CDD2;white-space:nowrap;}
@@ -329,52 +318,9 @@
   .scr-cta{margin-top:13px;background:var(--brand);color:#fff;text-align:center;font-family:'Archivo';font-weight:700;font-size:11.5px;border-radius:9px;padding:11px;}
   @media(max-width:780px){ .phone.f2{display:none;} }
   @media(max-width:540px){ .phone{width:215px;} .phone.f3{display:none;} .phones{gap:0;} }
-
-  /* ---------- cinematic intro overlay (fast, once per session) ---------- */
-  #intro{position:fixed;inset:0;z-index:200;background:var(--steel);display:flex;flex-direction:column;align-items:center;justify-content:center;}
-  #intro .word-wrap{height:1.15em;overflow:hidden;line-height:1.15;}
-  #intro .word{font-family:'Archivo';font-weight:800;font-size:clamp(34px,7vw,72px);letter-spacing:-.02em;color:#fff;display:block;}
-  #intro .word .acc{color:var(--brand-bright);}
-  #intro .bar{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--brand);}
-  #intro .pct{position:absolute;left:24px;bottom:20px;font-family:'IBM Plex Mono';font-size:12px;letter-spacing:.14em;color:#7FD3CB;}
-  #intro .skip{position:absolute;right:24px;bottom:18px;font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8aa0a7;background:none;border:none;cursor:pointer;}
-  #intro .skip:hover{color:#fff;}
-  html.intro-done #intro{opacity:0;transform:translateY(-12px);transition:opacity .55s ease, transform .55s cubic-bezier(.7,0,.3,1);pointer-events:none;}
-  @media (prefers-reduced-motion: reduce){ #intro{display:none!important;} }
-
-  /* ---------- masked line reveal (their signature wipe-up) ---------- */
-  @media (prefers-reduced-motion: no-preference){
-    html.js .rmask{opacity:0;transform:translateY(16px);clip-path:inset(105% 0 -6% 0);
-      transition:opacity .7s ease, transform .8s cubic-bezier(.2,.7,.2,1), clip-path .8s cubic-bezier(.2,.7,.2,1);}
-    html.js .rmask.in{opacity:1;transform:none;clip-path:inset(-6% 0 -6% 0);}
-  }
-
-  /* ---------- marquee strip ---------- */
-  .marquee{background:var(--steel);color:#fff;border-top:3px solid var(--brand);border-bottom:3px solid var(--brand);overflow:hidden;padding:16px 0;}
-  .marquee .track{display:flex;width:max-content;gap:0;animation:scrollx 34s linear infinite;}
-  .marquee:hover .track{animation-play-state:paused;}
-  .marquee .item{font-family:'Archivo';font-weight:800;font-size:22px;letter-spacing:-.01em;color:#fff;padding:0 26px;white-space:nowrap;display:flex;align-items:center;gap:26px;}
-  .marquee .item::after{content:"•";color:var(--brand-bright);}
-  @keyframes scrollx{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-  @media (prefers-reduced-motion: reduce){ .marquee .track{animation:none;flex-wrap:wrap;width:auto;justify-content:center;} }
-
-  /* ---------- hero glow pan + CTA polish ---------- */
-  @media (prefers-reduced-motion: no-preference){
-    .hero::after{animation:glowpan 14s ease-in-out infinite alternate;}
-    @keyframes glowpan{0%{background-position:78% -8%;}100%{background-position:40% 12%;}}
-  }
-  .cta-lg{transition:filter .15s, transform .12s ease;}
-  .cta-lg:hover{transform:translateY(-2px) scale(1.02);}
 </style>
 </head>
 <body>
-
-<div id="intro" aria-hidden="true">
-  <div class="word-wrap"><span class="word" id="introWord">Describe the job.</span></div>
-  <div class="bar" id="introBar"></div>
-  <div class="pct" id="introPct">000%</div>
-  <button class="skip" id="introSkip" type="button">Skip ✕</button>
-</div>
 
 <nav>
   <div class="nav-in">
@@ -433,13 +379,6 @@
     </div>
   </div>
 </header>
-
-<div class="marquee" aria-hidden="true">
-  <div class="track">
-    <span class="item">Hazard registers</span><span class="item">SWMS</span><span class="item">PPE</span><span class="item">Daily pre-starts</span><span class="item">Toolbox talks</span><span class="item">Incident reports</span><span class="item">Crew sign-off</span><span class="item">QR site sign-in</span>
-    <span class="item">Hazard registers</span><span class="item">SWMS</span><span class="item">PPE</span><span class="item">Daily pre-starts</span><span class="item">Toolbox talks</span><span class="item">Incident reports</span><span class="item">Crew sign-off</span><span class="item">QR site sign-in</span>
-  </div>
-</div>
 
 <section class="band" id="how">
   <div class="wrap">
@@ -699,53 +638,6 @@
 </footer>
 
 <script>
-/* Cinematic intro: fast (~1.4s), once per session, skippable, reduced-motion safe. */
-(function(){
-  var intro=document.getElementById('intro');
-  if(!intro) return;
-  var H=document.documentElement;
-  var reduce=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var seen=false; try{ seen=sessionStorage.getItem('ca_intro')==='1'; }catch(e){}
-
-  function finish(){
-    if(H.classList.contains('intro-done')) return;
-    try{ sessionStorage.setItem('ca_intro','1'); }catch(e){}
-    H.classList.add('intro-done');
-    setTimeout(function(){ if(intro&&intro.parentNode) intro.parentNode.removeChild(intro); }, 650);
-  }
-  if(reduce || seen){ intro.style.display='none'; finish(); return; }
-
-  var words=['Describe the job.','Draft the plan.','Run it on site.','Sorted.'];
-  var wordEl=document.getElementById('introWord'),
-      barEl=document.getElementById('introBar'),
-      pctEl=document.getElementById('introPct');
-  wordEl.innerHTML=words[0].replace('Sorted','<span class="acc">Sorted</span>');
-  var i=0, pct=0, total=1300, t0=performance.now();
-  var wi=setInterval(function(){
-    i=(i+1)%words.length;
-    wordEl.style.transition='transform .4s cubic-bezier(.7,0,.3,1), opacity .4s';
-    wordEl.style.transform='translateY(-110%)'; wordEl.style.opacity='0';
-    setTimeout(function(){
-      wordEl.style.transition='none'; wordEl.style.transform='translateY(110%)';
-      wordEl.innerHTML=words[i].replace('Sorted','<span class="acc">Sorted</span>');
-      requestAnimationFrame(function(){
-        wordEl.style.transition='transform .4s cubic-bezier(.7,0,.3,1), opacity .4s';
-        wordEl.style.transform='translateY(0)'; wordEl.style.opacity='1';
-      });
-    },200);
-  },330);
-  function tick(now){
-    var p=Math.min(1,(now-t0)/total);
-    pct=Math.round(p*100);
-    pctEl.textContent=(pct<100?('00'+pct).slice(-3):'100')+'%';
-    barEl.style.width=(p*100)+'%';
-    if(p<1){ requestAnimationFrame(tick); } else { clearInterval(wi); setTimeout(finish,160); }
-  }
-  requestAnimationFrame(tick);
-  document.getElementById('introSkip').addEventListener('click',function(){ clearInterval(wi); finish(); });
-})();
-</script>
-<script>
 (function(){
   var H=document.documentElement;
   if(!H.classList.contains('js')) return;
@@ -757,23 +649,19 @@
       card.classList.add('reveal','d'+((i%4)+1));
     });
   });
-  // Headings get the signature masked wipe-up; supporting text gets a soft fade.
-  document.querySelectorAll('section.band > .wrap > h2, .final h2, .prose h2, .prose h3')
-    .forEach(function(el){ if(!el.classList.contains('rmask')) el.classList.add('rmask'); });
-  document.querySelectorAll('section.band .kicker, section.band > .wrap > .lede, .final p, .prose p')
+  // One quiet motion: a gentle fade-up as sections enter view.
+  document.querySelectorAll('section.band .kicker, section.band > .wrap > h2, section.band > .wrap > .lede, .final h2, .final p, .prose h2, .prose h3, .prose p')
     .forEach(function(el){ if(!el.classList.contains('reveal')) el.classList.add('reveal'); });
 
   if(!('IntersectionObserver' in window)){
-    document.querySelectorAll('.reveal, .rmask').forEach(function(el){el.classList.add('in');});
+    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});
     return;
   }
   var io=new IntersectionObserver(function(entries){
     entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
   },{threshold:.12, rootMargin:'0px 0px -40px 0px'});
-  document.querySelectorAll('.reveal, .rmask').forEach(function(el){ io.observe(el); });
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
 })();
 </script>
-<script>/* failsafe: never let the intro overlay get stuck */
-setTimeout(function(){var i=document.getElementById('intro');if(i&&!document.documentElement.classList.contains('intro-done')){i.style.display='none';}},4000);</script>
 </body>
 </html>
