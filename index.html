@@ -2,9 +2,10 @@
 <html lang="en-NZ">
 <head>
 <meta charset="UTF-8" />
+<script>document.documentElement.className+=' js';</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SSSP Template NZ — Free Site-Specific Safety Plan Builder | CompliAI</title>
-<meta name="description" content="Build a Site-Specific Safety Plan free. CompliAI's AI drafts your hazard register, SWMS and PPE from a plain-English job description. Made for NZ trades and subbies." />
+<meta name="description" content="Build a Site-Specific Safety Plan free, then run it onsite. CompliAI's AI drafts your hazard register, SWMS and PPE, and your whole crew runs daily pre-starts, toolbox talks and sign-offs from their phone. Made for NZ & AU trades." />
 <meta name="robots" content="index, follow" />
 <link rel="canonical" href="https://compliai.co.nz/" />
 <link rel="icon" href="favicon.svg?v=2" type="image/svg+xml" />
@@ -20,7 +21,7 @@
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://compliai.co.nz/" />
 <meta property="og:title" content="Free SSSP Builder for NZ trades — Site-Specific Safety Plan in minutes" />
-<meta property="og:description" content="Describe the job in plain English. CompliAI drafts your hazard register, SWMS and PPE, then exports a branded SSSP PDF. Free to use." />
+<meta property="og:description" content="Describe the job in plain English. CompliAI drafts your hazard register, SWMS and PPE, exports a branded SSSP — then your crew runs the daily checks, toolbox talks and sign-offs onsite from their phone. Free to use." />
 <meta property="og:image" content="https://compliai.co.nz/og-cover.png" />
 <meta property="og:image:secure_url" content="https://compliai.co.nz/og-cover.png" />
 <meta property="og:image:type" content="image/png" />
@@ -268,6 +269,65 @@
     .trades{gap:8px;}
     .trade{padding:8px 13px;font-size:13px;}
   }
+
+  /* ---------- motion: scroll reveal + hover + float ---------- */
+  .step,.feat,.price{transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;}
+  .step:hover,.price:hover{transform:translateY(-4px);box-shadow:0 18px 40px -24px rgba(0,0,0,.28);}
+  .feat:hover{transform:translateY(-3px);}
+  .trade{transition:transform .14s ease, border-color .14s ease, background .14s ease;}
+  .trade:hover{transform:translateY(-2px);border-color:var(--brand);background:var(--brand-tint);}
+  @media (prefers-reduced-motion: no-preference){
+    html.js .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1);}
+    html.js .reveal.in{opacity:1;transform:none;}
+    html.js .reveal.d1{transition-delay:.07s;} html.js .reveal.d2{transition-delay:.14s;}
+    html.js .reveal.d3{transition-delay:.21s;} html.js .reveal.d4{transition-delay:.28s;}
+    @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    @keyframes floaty2{0%,100%{transform:translateY(0)}50%{transform:translateY(-19px)}}
+    @keyframes pulseArrow{0%,100%{opacity:.55;transform:translateY(0)}50%{opacity:1;transform:translateY(3px)}}
+    @keyframes caret{50%{opacity:0}}
+    .xform .arrow{animation:pulseArrow 1.9s ease-in-out infinite;}
+  }
+
+  /* ---------- phone mockups ---------- */
+  .phones{display:flex;justify-content:center;align-items:flex-end;gap:26px;margin-top:44px;flex-wrap:wrap;}
+  .phone{width:232px;flex:none;border-radius:36px;background:#0e1519;padding:11px;position:relative;box-shadow:0 44px 80px -36px rgba(0,0,0,.6), inset 0 0 0 2px #2b3a41;}
+  .phone::before{content:"";position:absolute;top:12px;left:50%;transform:translateX(-50%);width:82px;height:19px;background:#0e1519;border-radius:0 0 14px 14px;z-index:6;}
+  .phone .screen{border-radius:26px;overflow:hidden;background:var(--paper);height:472px;display:flex;flex-direction:column;}
+  @media (prefers-reduced-motion: no-preference){
+    .phone.f1{animation:floaty 6s ease-in-out infinite;}
+    .phone.f2{animation:floaty2 7.2s ease-in-out infinite .4s;}
+    .phone.f3{animation:floaty 6.6s ease-in-out infinite .9s;}
+  }
+  .scr-top{background:var(--steel);color:#fff;border-bottom:3px solid var(--brand);padding:13px 14px 11px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .scr-top img{height:15px;width:auto;display:block;}
+  .scr-top .bk{font-size:10.5px;color:#C3CDD2;white-space:nowrap;}
+  .scr-body{padding:15px 14px;overflow:hidden;flex:1;}
+  .scr-h{font-family:'Archivo';font-weight:800;font-size:15.5px;color:var(--ink);margin:0 0 2px;letter-spacing:-.01em;}
+  .scr-sub{font-size:10.5px;color:var(--ink-soft);margin:0 0 13px;}
+  .mb-btn{display:flex;align-items:center;gap:9px;background:#fff;border:1.4px solid var(--line);border-radius:11px;padding:10px 11px;margin-bottom:9px;}
+  .mb-btn .mi{width:21px;text-align:center;font-size:15px;color:var(--brand);flex:none;}
+  .mb-btn .mt{font-family:'Archivo';font-weight:700;font-size:11.5px;color:var(--ink);line-height:1.2;}
+  .mb-btn .mt small{display:block;font-family:'IBM Plex Sans';font-weight:500;font-size:8.5px;color:var(--ink-soft);margin-top:1px;}
+  .mb-btn.dark{background:var(--steel);border-color:var(--steel);}
+  .mb-btn.dark .mt,.mb-btn.dark .mi{color:#fff;}
+  .mb-btn.dark .mt small{color:#A9B6BC;}
+  .ck{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:8px;}
+  .ck .cl{font-size:10.5px;color:var(--ink);line-height:1.3;}
+  .tog{width:34px;height:20px;border-radius:99px;background:var(--brand);position:relative;flex:none;}
+  .tog::after{content:"";position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:#fff;}
+  .tog.off{background:#cdd0c7;}
+  .tog.off::after{right:auto;left:2px;}
+  .fld{margin-bottom:11px;}
+  .fld label{display:block;font-family:'IBM Plex Mono';font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--steel-soft);margin-bottom:4px;}
+  .fld .inp{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-size:11.5px;color:var(--ink);}
+  .fld .inp.typed::after{content:"";display:inline-block;width:1.5px;height:13px;background:var(--brand);margin-left:1px;vertical-align:-2px;}
+  .confirm{display:flex;gap:8px;align-items:flex-start;background:var(--brand-tint);border:1px solid #bfe0db;border-radius:9px;padding:10px;}
+  .confirm .bx{width:16px;height:16px;border-radius:4px;background:var(--brand);color:#fff;font-size:11px;line-height:16px;text-align:center;flex:none;}
+  .confirm .ct{font-size:9px;color:#0B5A54;line-height:1.4;}
+  @media (prefers-reduced-motion: no-preference){ .fld .inp.typed::after{animation:caret 1s step-end infinite;} }
+  .scr-cta{margin-top:13px;background:var(--brand);color:#fff;text-align:center;font-family:'Archivo';font-weight:700;font-size:11.5px;border-radius:9px;padding:11px;}
+  @media(max-width:780px){ .phone.f2{display:none;} }
+  @media(max-width:540px){ .phone{width:215px;} .phone.f3{display:none;} .phones{gap:0;} }
 </style>
 </head>
 <body>
@@ -278,6 +338,7 @@
     <div class="nav-links">
       <a href="#how">How it works</a>
       <a href="#includes">What's included</a>
+      <a href="#onsite">Onsite app</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
       <a class="cta" href="app.html" style="background:transparent;border:1.5px solid rgba(255,255,255,.35);">Log in</a>
@@ -292,14 +353,14 @@
       <div>
         <div class="eyebrow">Site-Specific Safety Plans · New Zealand</div>
         <h1>Write a Site-Specific Safety Plan in minutes, not hours.</h1>
-        <p class="sub">Describe the job in plain English. CompliAI drafts your hazard register, SWMS and PPE, then exports a clean, branded SSSP — ready to hand to the main contractor.</p>
+        <p class="sub">Describe the job in plain English. CompliAI drafts your hazard register, SWMS and PPE, then exports a clean, branded SSSP — and your crew runs the daily checks, toolbox talks and sign-offs onsite, from their phone.</p>
         <div class="hero-actions">
           <a class="cta-lg" href="sssp-builder.html">Build your SSSP free →</a>
           <a class="ghost" href="#how">See how it works</a>
         </div>
         <div class="freebar">
           <span><span class="tick">✓</span> Free to use &amp; export</span>
-          <span><span class="tick">✓</span> No account to start</span>
+          <span><span class="tick">✓</span> Runs on every phone</span>
           <span><span class="tick">✓</span> Made for NZ sites</span>
         </div>
       </div>
@@ -360,12 +421,78 @@
   </div>
 </section>
 
-<section class="band" id="accounts" style="background:var(--surface);border-top:1px solid var(--line);">
+<section class="band" id="onsite" style="background:var(--surface);border-top:1px solid var(--line);overflow:hidden;">
   <div class="wrap">
-    <div class="kicker">New — free account</div>
-    <h2>Save your jobs, pick up where you left off</h2>
-    <p class="lede">Create a free account to save up to 3 active jobs — no card needed. Your plan and registers stay in one place, on any device, ready to update next time you're on that site.</p>
-    <div style="margin-top:6px;"><a class="cta" href="app.html">Create a free account →</a></div>
+    <div class="kicker reveal">New — the onsite app</div>
+    <h2 class="reveal d1">The plan doesn't stop at the PDF. It runs the whole job.</h2>
+    <p class="lede reveal d2">CompliAI is now a full onsite health &amp; safety app. Your crew opens the job on their phone, runs the daily pre-start, records toolbox talks, reports incidents and signs the plan — just by typing their name. Stick a QR code on the site and they scan straight in.</p>
+
+    <div class="phones">
+      <div class="phone f1 reveal d1">
+        <div class="screen">
+          <div class="scr-top"><img src="compliAI-logo-reversed.svg" alt="CompliAI" /><span class="bk">← My jobs</span></div>
+          <div class="scr-body">
+            <p class="scr-h">14 Maunsell Rd reroof</p>
+            <p class="scr-sub">Manukau · on site today</p>
+            <div class="mb-btn"><span class="mi">✓</span><span class="mt">Daily pre-start check<small>Is the site safe to start?</small></span></div>
+            <div class="mb-btn"><span class="mi">☷</span><span class="mt">Toolbox talk<small>Record a crew briefing</small></span></div>
+            <div class="mb-btn"><span class="mi">✍</span><span class="mt">Sign the SSSP<small>Confirm you've read it</small></span></div>
+            <div class="mb-btn"><span class="mi">⚠</span><span class="mt">Report an incident<small>Log a near-miss or injury</small></span></div>
+            <div class="mb-btn dark"><span class="mi">▦</span><span class="mt">Site QR code<small>Crew scan to sign in</small></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone f2 reveal d2">
+        <div class="screen">
+          <div class="scr-top"><img src="compliAI-logo-reversed.svg" alt="CompliAI" /><span class="bk">Daily check</span></div>
+          <div class="scr-body">
+            <p class="scr-h">Pre-start check</p>
+            <p class="scr-sub">Tick what's sorted before tools go on</p>
+            <div class="ck"><span class="cl">Edge protection in place</span><span class="tog"></span></div>
+            <div class="ck"><span class="cl">Access &amp; egress clear</span><span class="tog"></span></div>
+            <div class="ck"><span class="cl">Power lines identified</span><span class="tog"></span></div>
+            <div class="ck"><span class="cl">First-aid kit on site</span><span class="tog off"></span></div>
+            <div class="ck"><span class="cl">PPE worn by all crew</span><span class="tog"></span></div>
+            <div class="scr-cta">Save today's check</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone f3 reveal d3">
+        <div class="screen">
+          <div class="scr-top"><img src="compliAI-logo-reversed.svg" alt="CompliAI" /><span class="bk">Sign-off</span></div>
+          <div class="scr-body">
+            <p class="scr-h">Sign the safety plan</p>
+            <p class="scr-sub">No app to download — just your name</p>
+            <div class="fld"><label>Your name</label><div class="inp typed">Wiremu Tana</div></div>
+            <div class="fld"><label>Role on site</label><div class="inp">Roofer</div></div>
+            <div class="confirm"><span class="bx">✓</span><span class="ct">I've read and understood this Site-Specific Safety Plan and agree to follow it on site.</span></div>
+            <div class="scr-cta">Confirm sign-off</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="lede reveal d2" style="text-align:center;max-width:640px;margin:34px auto 0;font-size:15px;">Add it to your home screen and it opens like any other app — no app store needed. Built mobile-first so it's quick to use one-handed on site.</p>
+
+    <div class="steps" style="margin-top:30px;">
+      <div class="step"><div class="num">①</div><h3>Scan in with a QR code</h3><p>Print the job's QR code, stick it on site, and the crew scan to open exactly the right job — no typing links.</p></div>
+      <div class="step"><div class="num">②</div><h3>Run the day from the phone</h3><p>Daily pre-start checks, toolbox talks and incident reports — all recorded against the job and timestamped.</p></div>
+      <div class="step"><div class="num">③</div><h3>Sign by typing a name</h3><p>Staff confirm they've read the plan or attended the toolbox by typing their name. No fiddly signature pad, no printing.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="accounts">
+  <div class="wrap">
+    <div class="kicker reveal">Accounts &amp; teams</div>
+    <h2 class="reveal d1">One login for the boss — the whole crew on their phones</h2>
+    <p class="lede reveal d2">Start free and save your jobs, no card needed. Upgrade and your managers and staff each get their own login: managers build and manage the plans, staff run the onsite checks, toolbox talks and sign-offs. Everyone's records roll up into one place, on any device.</p>
+    <div class="reveal d2" style="margin-top:10px;display:flex;gap:12px;flex-wrap:wrap;">
+      <a class="cta" href="app.html">Create a free account →</a>
+      <a class="cta" href="#onsite" style="background:transparent;border:1.5px solid var(--line);color:var(--brand-deep);">See the onsite app</a>
+    </div>
   </div>
 </section>
 
@@ -416,7 +543,9 @@
       <details><summary>How long does it take?</summary><p>A few minutes. Describe the job, let the AI draft the hazard register, SWMS and PPE, review and tidy it, then export the PDF.</p></details>
       <details><summary>Can I add my company logo and branding?</summary><p>Yes, on a paid plan. The free version exports a clean plan with a small CompliAI footer; upgrading removes it and adds your branding.</p></details>
       <details><summary>What does it cover?</summary><p>Site and project details, a hazard register, a Safe Work Method Statement, PPE, key personnel and emergency procedures, and a crew sign-off sheet — plus optional sections for plant &amp; equipment, electrical test &amp; tag, hazardous substances (SDS), site rules &amp; induction, training &amp; competencies, subcontractors &amp; notifiable works, incident reporting and toolbox talks. Add only what the job needs; it all exports as one PDF.</p></details>
-      <details><summary>Will it work on my phone on site?</summary><p>Yes. CompliAI runs in the browser and works on a phone, so you can build or tweak a plan from the ute.</p></details>
+      <details><summary>Will it work on my phone on site?</summary><p>Yes — it's built mobile-first. Your crew opens the job on their phone to run the daily pre-start, record a toolbox talk, report an incident or sign the plan. You can also add it to your home screen so it opens like a normal app.</p></details>
+      <details><summary>Can my whole crew use it?</summary><p>Yes, on a paid plan. Each manager and staff member gets their own login. Managers build and manage the plans; staff run the onsite checks, toolbox talks and sign-offs. To sign in fast on site, print the job's QR code and the crew scan straight into the right job.</p></details>
+      <details><summary>Do staff need to download an app or use a signature pad?</summary><p>No. There's nothing to install — staff just open the link (or scan the QR) in their phone browser, and they sign by typing their name and ticking that they've read the plan. Simple enough to do one-handed on a ladder.</p></details>
     </div>
   </div>
 </section>
@@ -505,6 +634,7 @@
       <div style="display:flex;flex-direction:column;gap:9px;">
         <a href="#how">How it works</a>
         <a href="#includes">What's included</a>
+        <a href="#onsite">Onsite app</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
         <a href="sssp-builder.html">Build your SSSP</a>
@@ -517,5 +647,30 @@
   </div>
 </footer>
 
+<script>
+(function(){
+  var H=document.documentElement;
+  if(!H.classList.contains('js')) return;
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // Auto-tag grid cards + headings for a staggered reveal (minimal markup edits).
+  document.querySelectorAll('.steps, .feats, .prices, .trades, .faq').forEach(function(grid){
+    Array.prototype.forEach.call(grid.children, function(card,i){
+      card.classList.add('reveal','d'+((i%4)+1));
+    });
+  });
+  document.querySelectorAll('section.band .kicker, section.band > .wrap > h2, section.band > .wrap > .lede, .final h2, .final p, .prose h2, .prose h3, .prose p')
+    .forEach(function(el){ if(!el.classList.contains('reveal')) el.classList.add('reveal'); });
+
+  if(!('IntersectionObserver' in window)){
+    document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});
+    return;
+  }
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.12, rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+})();
+</script>
 </body>
 </html>
