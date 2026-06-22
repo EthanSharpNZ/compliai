@@ -22,8 +22,8 @@
   .display{font-family:'Archivo',sans-serif;}
 
   header{position:sticky;top:0;z-index:40;background:var(--steel);color:#fff;border-bottom:3px solid var(--brand);}
-  .bar{max-width:1280px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
-  .brand{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none;color:inherit;cursor:pointer;}
+  .bar{max-width:1280px;margin:0 auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none;color:inherit;cursor:pointer;flex:none;}
   .brand:hover{opacity:.9;}
   .mark{width:34px;height:34px;flex:none;border-radius:7px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--brand);box-shadow:inset 0 0 0 2px rgba(255,255,255,.18);}
   .mark img{width:100%;height:100%;display:block;}
@@ -39,13 +39,16 @@
   .opt-sec .opt-body .sec-sub{margin-bottom:12px;}
   .subbie-row{display:grid;grid-template-columns:1fr 1fr 1fr 76px 26px;gap:6px;margin-bottom:6px;align-items:center;}
   .subbie-row input{width:100%;}
+  @media(max-width:560px){.subbie-row{grid-template-columns:1fr 1fr 26px;}}
   .p-rules-list{margin:0;padding-left:22px;}
   .p-rules-list li{margin:0 0 6px;line-height:1.45;}
   /* digital onsite records stay separate from the printed SSSP */
   @media print{ #dsecChecks,#dsecToolbox,#dsecIncidents{display:none !important;} }
   .brand h1{font-family:'Archivo';font-weight:800;font-size:19px;margin:0;letter-spacing:-.01em;line-height:1;}
   .brand .eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#A9B6BC;margin-top:3px;}
-  .bar-actions{display:flex;align-items:center;gap:10px;flex:none;}
+  .bar-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;min-width:0;justify-content:flex-end;}
+  /* JS-injected onsite record links (recLinks) must wrap, not overlap */
+  #recLinks{flex-wrap:wrap;}
   .pro-toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:#C3CDD2;cursor:pointer;user-select:none;}
   .pro-toggle .dot{width:34px;height:19px;border-radius:99px;background:#3c4b52;position:relative;transition:background .18s;flex:none;}
   .pro-toggle .dot::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:transform .18s;}
@@ -177,6 +180,32 @@
   .doc-foot .stamp[data-pro="1"]{display:none;}
 
   .hint{font-size:12px;color:var(--ink-soft);margin-top:14px;text-align:center;}
+
+  /* ---- phone tuning (<=600px) ---- */
+  @media(max-width:600px){
+    .bar{padding:12px 16px;}
+    .brand-logo{height:26px;}
+    /* header actions: smaller text, wrap onto their own full-width row */
+    .bar-actions{width:100%;justify-content:flex-start;gap:8px 12px;}
+    .bar-actions a,.pro-toggle{font-size:12px;}
+    .btn-export{font-size:12.5px;padding:9px 13px;}
+    /* tabs sit below a header that can grow when wrapping */
+    .viewtabs{top:0 !important;}
+    .wrap{padding:20px 16px 80px;}
+    .section{padding:16px 16px 18px;}
+    /* the JS-injected onsite links / email-report button stay inline and wrap */
+    #recLinks{gap:8px 12px;}
+    #emailReportBtn{font-size:12px;padding:8px 11px;}
+    /* keep preview content (incl. injected 5-col record tables) inside the page */
+    .doc-body{padding:18px 14px 6px;}
+    .doc-top{padding:18px 16px 16px;}
+    table.hazt,table.signt{table-layout:fixed;}
+    table.hazt td,table.hazt th,table.signt td,table.signt th{overflow-wrap:anywhere;word-break:break-word;padding-left:5px;padding-right:5px;}
+  }
+  @media(max-width:380px){
+    .brand .eyebrow{display:none;}
+    .bar-actions a,.pro-toggle{font-size:11.5px;}
+  }
 
   @media print{
     @page{size:A4;margin:14mm 15mm;}

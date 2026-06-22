@@ -102,6 +102,16 @@
   .cta:hover{filter:brightness(1.08);}
   .cta:active{transform:translateY(1px);}
   @media(max-width:760px){.nav-links a:not(.cta){display:none;}}
+  @media(max-width:600px){
+    .nav-in{padding:11px 16px;gap:10px;flex-wrap:wrap;}
+    .nav-links{gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+    .cta{font-size:13px;padding:9px 13px;}
+    .wrap{padding:0 16px;}
+  }
+  @media(max-width:380px){
+    .nav-in .logo b{font-size:16px;}
+    .cta{padding:8px 11px;}
+  }
 
   /* hero */
   .hero{background:var(--steel);color:#fff;padding:62px 0 70px;position:relative;overflow:hidden;}
@@ -224,6 +234,28 @@
   .foot-bottom a:hover{color:#fff;}
 
   :focus-visible{outline:3px solid var(--brand-bright);outline-offset:2px;border-radius:4px;}
+
+  /* ---- phone tuning (<=600px) ---- */
+  @media(max-width:600px){
+    .hero{padding:46px 0 50px;}
+    h1{font-size:31px;}
+    .hero p.sub{font-size:16px;}
+    .hero-actions{gap:10px;}
+    .cta-lg{font-size:15px;padding:13px 18px;}
+    .freebar{gap:10px 16px;}
+    section.band{padding:46px 0;}
+    h2{font-size:23px;}
+    .final h2{font-size:26px;}
+    .lede{font-size:16px;}
+    .prose p{font-size:15.5px;}
+    .price .amt{font-size:30px;}
+    .xform{padding:14px;}
+  }
+  @media(max-width:380px){
+    h1{font-size:27px;}
+    .trades{gap:8px;}
+    .trade{padding:8px 13px;font-size:13px;}
+  }
 </style>
 </head>
 <body>
