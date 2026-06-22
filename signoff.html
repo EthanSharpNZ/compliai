@@ -39,9 +39,10 @@
   .hide{display:none;}
   .ok-screen{text-align:center;padding:30px 10px;}
   .ok-screen .tick{font-size:44px;color:var(--good);}
-  .sig-canvas{width:100%;height:180px;border:1.5px dashed var(--line);border-radius:10px;background:#fff;touch-action:none;display:block;}
-  .sig-actions{display:flex;gap:8px;margin-top:10px;}
   .confirm{font-size:13px;color:var(--ink-soft);line-height:1.45;margin-bottom:14px;}
+  .confirm-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;}
+  .confirm-row input{width:auto;flex:none;margin-top:2px;}
+  .confirm-row label{text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink);margin:0;cursor:pointer;}
   @media(max-width:480px){
     .bar{padding:12px 14px;}
     .wrap{padding:18px 14px 80px;}
@@ -68,10 +69,9 @@
         <div class="field"><label>Role / company</label><input type="text" id="role" placeholder="e.g. Roofer — ABC Ltd" /></div>
       </div>
       <div class="field"><label>Date</label><input type="date" id="date" /></div>
-      <div class="field">
-        <label>Signature</label>
-        <canvas id="sigCanvas" class="sig-canvas"></canvas>
-        <div class="sig-actions"><button class="btn alt mini" type="button" id="sigClear">Clear</button></div>
+      <div class="confirm-row">
+        <input type="checkbox" id="confirmChk" />
+        <label for="confirmChk">I confirm I have read and understood this Site-Specific Safety Plan.</label>
       </div>
       <button class="btn" id="submitBtn">Sign &amp; confirm</button>
       <div id="msg" class="hide"></div>
@@ -95,23 +95,9 @@ const sb=supabase.createClient("https://qewsprapekvvtlsbyaed.supabase.co","sb_pu
 const jobId=new URLSearchParams(location.search).get("job");
 function show(id,on){document.getElementById(id).classList.toggle("hide",!on);}
 
-/* ---- reusable signature pad (canvas, no library) ---- */
-function makeSignaturePad(canvas){
-  const ctx=canvas.getContext("2d"); let drawing=false, dirty=false;
-  function size(){const r=canvas.getBoundingClientRect();const d=window.devicePixelRatio||1;canvas.width=r.width*d;canvas.height=r.height*d;ctx.setTransform(1,0,0,1,0,0);ctx.scale(d,d);ctx.lineWidth=2.2;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#1A1B17";}
-  function pos(e){const r=canvas.getBoundingClientRect();const t=e.touches&&e.touches[0];const cx=t?t.clientX:e.clientX,cy=t?t.clientY:e.clientY;return{x:cx-r.left,y:cy-r.top};}
-  function start(e){drawing=true;dirty=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);}
-  function move(e){if(!drawing)return;e.preventDefault();const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();}
-  function end(){drawing=false;}
-  canvas.addEventListener("mousedown",start);canvas.addEventListener("mousemove",move);window.addEventListener("mouseup",end);
-  canvas.addEventListener("touchstart",start,{passive:false});canvas.addEventListener("touchmove",move,{passive:false});canvas.addEventListener("touchend",end);
-  return{ resize:size, clear:function(){ctx.clearRect(0,0,canvas.width,canvas.height);dirty=false;}, isEmpty:function(){return !dirty;}, toDataURL:function(){return canvas.toDataURL("image/png");} };
-}
-
 document.getElementById("backLink").href="sssp-builder.html?job="+jobId;
 document.getElementById("toJob").href="sssp-builder.html?job="+jobId;
 
-let sigPad=null;
 async function init(){
   if(!jobId){document.getElementById("loading").textContent="No job specified.";return;}
   const {data:{session}}=await sb.auth.getSession();
@@ -121,21 +107,16 @@ async function init(){
   document.getElementById("jobName").textContent=data.title||"Job";
   document.getElementById("date").value=new Date().toISOString().slice(0,10);
   show("loading",false);show("form",true);
-  sigPad=makeSignaturePad(document.getElementById("sigCanvas"));
-  requestAnimationFrame(()=>{sigPad.resize();});
 }
-window.addEventListener("resize",()=>{if(sigPad){sigPad.resize();sigPad.clear();}});
-window.addEventListener("orientationchange",()=>{if(sigPad){sigPad.resize();sigPad.clear();}});
-document.getElementById("sigClear").addEventListener("click",()=>sigPad&&sigPad.clear());
 document.getElementById("submitBtn").addEventListener("click",async()=>{
   const name=document.getElementById("name").value.trim();
   const role=document.getElementById("role").value.trim();
+  const confirmed=document.getElementById("confirmChk").checked;
   const msg=document.getElementById("msg");
-  if(!name){msg.className="err";msg.textContent="Enter your name.";show("msg",true);return;}
-  if(!sigPad||document.getElementById("sigCanvas").clientWidth===0||sigPad.isEmpty()){msg.className="err";msg.textContent="Please add a signature.";show("msg",true);return;}
+  if(!name||!confirmed){msg.className="err";msg.textContent="Enter your name and tick to confirm.";show("msg",true);return;}
   show("msg",false);
   const btn=document.getElementById("submitBtn");btn.disabled=true;btn.textContent="Saving…";
-  const payload={name,role,date:document.getElementById("date").value,signature:sigPad.toDataURL()};
+  const payload={name,role,date:document.getElementById("date").value,confirmed:true};
   const {data:{session}}=await sb.auth.getSession();
   if(!session||!session.user){btn.disabled=false;btn.textContent="Sign & confirm";msg.className="err";msg.textContent="Your session expired — please open the sign-in link again.";show("msg",true);return;}
   const {error}=await sb.from("records").insert({job_id:jobId,type:"signoff",payload,created_by:session.user.id});

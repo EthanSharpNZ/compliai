@@ -398,7 +398,7 @@ function jobCard(j){
   const when=j.updated_at?new Date(j.updated_at).toLocaleDateString("en-NZ",{day:"2-digit",month:"short"}):"";
   const canBuild=currentOrg&&(currentOrg.role==="owner"||currentOrg.role==="manager");
   const archiveBtn=canBuild?`<button class="btn small alt" onclick="toggleArchive('${j.id}','${j.status}')">${j.status==="archived"?"Reactivate":"Archive"}</button>`:"";
-  return `<div class="job"><h3>${esc(j.title)}</h3><div class="meta">${esc(j.site_address)||"No site address yet"}</div><div class="meta">${j.status==="archived"?"Archived":"Active"} · updated ${when}</div><div class="row"><a class="btn small" href="sssp-builder.html?job=${j.id}">Open</a>${archiveBtn}</div></div>`;
+  return `<div class="job"><h3>${esc(j.title)}</h3><div class="meta">${esc(j.site_address)||"No site address yet"}</div><div class="meta">${j.status==="archived"?"Archived":"Active"} · updated ${when}</div><div class="row"><a class="btn small alt" href="onsite.html?job=${j.id}">Onsite</a><a class="btn small" href="sssp-builder.html?job=${j.id}">Open</a>${archiveBtn}</div></div>`;
 }
 document.getElementById("createJob").addEventListener("click",async()=>{
   const title=document.getElementById("newTitle").value.trim()||"Untitled job";

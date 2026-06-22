@@ -1043,12 +1043,12 @@ renderPreview();
     function isImgData(v){return typeof v==="string"&&/^data:image\//.test(v);}
     fillSec("dsecRecChecks","Daily pre-start checks","<th>Date</th><th>Plant</th><th>Operator</th><th>Result</th><th>Defects</th>",
       checks.length?checks.map(function(row){var p=row.payload||{};return '<tr><td>'+esc(p.date||"—")+'</td><td>'+esc(p.item||"—")+'</td><td>'+esc(p.operator||"—")+'</td><td>'+esc(p.result||"—")+'</td><td>'+esc(p.defects||"—")+'</td></tr>';}).join(""):"");
-    fillSec("dsecRecToolbox","Toolbox talks","<th>Date</th><th>Topic</th><th>Presenter</th><th>Attendees</th><th>Signed</th>",
-      talks.length?talks.map(function(row){var p=row.payload||{};var att=(p.attendees||[]).join(", ");var sigs=Array.isArray(p.signatures)?p.signatures:[];var thumbs=sigs.map(function(sg){return (sg&&isImgData(sg.dataUrl))?'<img src="'+esc(sg.dataUrl)+'" height="28" alt="'+esc((sg.name||"signature"))+'" style="margin:1px 3px 1px 0;"/>':"";}).join("");var signedCell=sigs.length?(esc(String(sigs.length))+(thumbs?'<div>'+thumbs+'</div>':"")):"—";return '<tr><td>'+esc(p.date||"—")+'</td><td>'+esc(p.topic||"—")+'</td><td>'+esc(p.presenter||"—")+'</td><td>'+esc(att||"—")+'</td><td>'+signedCell+'</td></tr>';}).join(""):"");
+    fillSec("dsecRecToolbox","Toolbox talks","<th>Date</th><th>Topic</th><th>Presenter</th><th>Attendees</th>",
+      talks.length?talks.map(function(row){var p=row.payload||{};var att=(p.attendees||[]).join(", ");return '<tr><td>'+esc(p.date||"—")+'</td><td>'+esc(p.topic||"—")+'</td><td>'+esc(p.presenter||"—")+'</td><td>'+esc(att||"—")+'</td></tr>';}).join(""):"");
     fillSec("dsecRecIncidents","Incident &amp; near-miss reports","<th>When</th><th>Type</th><th>Location</th><th>What happened</th><th>Notifiable</th>",
       incs.length?incs.map(function(row){var p=row.payload||{};var w=(p.datetime||"").replace("T"," ");return '<tr><td>'+esc(w||"—")+'</td><td>'+esc(p.type||"—")+'</td><td>'+esc(p.location||"—")+'</td><td>'+esc(p.description||"—")+'</td><td>'+esc(p.notifiable||"—")+'</td></tr>';}).join(""):"");
-    fillSec("dsecRecSignoff","Plan sign-off","<th>Name</th><th>Role</th><th>Date</th><th>Signature</th>",
-      signoffs.length?signoffs.map(function(row){var p=row.payload||{};var img=isImgData(p.signature)?'<img src="'+esc(p.signature)+'" height="40" alt="signature"/>':"—";return '<tr><td>'+esc(p.name||"—")+'</td><td>'+esc(p.role||"—")+'</td><td>'+esc(p.date||"—")+'</td><td>'+img+'</td></tr>';}).join(""):"");
+    fillSec("dsecRecSignoff","Plan sign-off","<th>Name</th><th>Role</th><th>Date</th><th>Confirmed</th>",
+      signoffs.length?signoffs.map(function(row){var p=row.payload||{};var ok=(p.confirmed||isImgData(p.signature))?"✓ Read &amp; understood":"—";return '<tr><td>'+esc(p.name||"—")+'</td><td>'+esc(p.role||"—")+'</td><td>'+esc(p.date||"—")+'</td><td>'+ok+'</td></tr>';}).join(""):"");
   }
   /* ---- saved-contacts picker for the main contractor ---- */
   var jobOrgId=null, contactPickEl=null, contactMsgEl=null;
