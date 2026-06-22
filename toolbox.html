@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>CompliAI — Toolbox talk</title>
+<link rel="icon" href="favicon.svg?v=2" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#F3F3EF;--surface:#FFFFFF;--ink:#1A1B17;--ink-soft:#62655C;--line:#E3E3DB;--hazard:#E2540B;--hazard-tint:#FBEDE3;--steel:#243137;--brand:#0F766E;--brand-deep:#0B5A54;--brand-tint:#E6F2F0;--good:#2F6B4F;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .display{font-family:'Archivo',sans-serif;}
+  header{position:sticky;top:0;z-index:40;background:var(--steel);color:#fff;border-bottom:3px solid var(--brand);}
+  .bar{max-width:640px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
+  .brand-logo{height:26px;width:auto;display:block;}
+  .bar a{color:#C3CDD2;text-decoration:none;font-size:13px;}
+  .wrap{max-width:640px;margin:0 auto;padding:22px 18px 90px;}
+  h1{font-family:'Archivo';font-weight:800;font-size:22px;margin:0 0 4px;}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 20px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;}
+  label{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;}
+  input,select,textarea{width:100%;font-family:inherit;font-size:16px;padding:12px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);border-color:var(--brand);}
+  textarea{min-height:80px;resize:vertical;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .field{margin-bottom:14px;}
+  .btn{font-family:'Archivo';font-weight:700;font-size:15px;background:var(--brand);color:#fff;border:none;border-radius:10px;padding:14px 18px;cursor:pointer;width:100%;}
+  .btn:hover{filter:brightness(1.06);}
+  .btn:disabled{opacity:.6;}
+  .btn.alt{background:transparent;color:var(--brand-deep);border:1.5px solid var(--line);}
+  .err{background:var(--hazard-tint);color:#9a3a08;border-radius:10px;padding:12px 14px;font-size:14px;margin-top:12px;}
+  .hide{display:none;}
+  .ok-screen{text-align:center;padding:30px 10px;}
+  .ok-screen .tick{font-size:44px;color:var(--good);}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <a class="brand" href="app.html"><img class="brand-logo" src="compliAI-logo-reversed.svg" alt="CompliAI" /></a>
+    <a id="backLink" href="app.html">← Back to job</a>
+  </div>
+</header>
+<div class="wrap">
+  <div id="loading" class="sub">Loading…</div>
+  <div id="form" class="hide">
+    <h1>Toolbox talk</h1>
+    <p class="sub" id="jobName">—</p>
+    <div class="card">
+      <div class="row2">
+        <div class="field"><label>Date</label><input type="date" id="date" /></div>
+        <div class="field"><label>Presenter</label><input type="text" id="presenter" placeholder="Who ran it" /></div>
+      </div>
+      <div class="field"><label>Topic</label><input type="text" id="topic" placeholder="e.g. Working at height — edge protection" /></div>
+      <div class="field"><label>Key points discussed</label><textarea id="points" placeholder="What was covered"></textarea></div>
+      <div class="field"><label>Attendees (one name per line)</label><textarea id="attendees" placeholder="Each person on a new line — they sign on the printed plan"></textarea></div>
+      <div class="field"><label>Actions / follow-ups</label><textarea id="actions" placeholder="Anything to follow up (optional)"></textarea></div>
+      <button class="btn" id="submitBtn">Save toolbox talk to this job</button>
+      <div id="msg" class="hide"></div>
+    </div>
+  </div>
+  <div id="done" class="hide">
+    <div class="card ok-screen">
+      <div class="tick">✓</div>
+      <h1>Toolbox talk saved</h1>
+      <p class="sub" id="doneMsg"></p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;">
+        <button class="btn alt" style="width:auto;" id="anotherBtn">Log another</button>
+        <a class="btn" style="width:auto;text-decoration:none;display:inline-block;" id="toJob">Back to the plan</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb=supabase.createClient("https://qewsprapekvvtlsbyaed.supabase.co","sb_publishable_otdr8vJvfweQ8yjlYD8rvg_LS1EvYqT");
+const jobId=new URLSearchParams(location.search).get("job");
+function show(id,on){document.getElementById(id).classList.toggle("hide",!on);}
+document.getElementById("backLink").href="sssp-builder.html?job="+jobId;
+document.getElementById("toJob").href="sssp-builder.html?job="+jobId;
+async function init(){
+  if(!jobId){document.getElementById("loading").textContent="No job specified.";return;}
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){location.href="app.html";return;}
+  const {data,error}=await sb.from("jobs").select("title").eq("id",jobId).single();
+  if(error||!data){document.getElementById("loading").textContent="Couldn't open this job.";return;}
+  document.getElementById("jobName").textContent=data.title||"Job";
+  document.getElementById("date").value=new Date().toISOString().slice(0,10);
+  show("loading",false);show("form",true);
+}
+document.getElementById("submitBtn").addEventListener("click",async()=>{
+  const topic=document.getElementById("topic").value.trim();
+  const presenter=document.getElementById("presenter").value.trim();
+  const msg=document.getElementById("msg");
+  if(!topic){msg.className="err";msg.textContent="Enter a topic.";show("msg",true);return;}
+  const btn=document.getElementById("submitBtn");btn.disabled=true;btn.textContent="Saving…";
+  const attendees=document.getElementById("attendees").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  const payload={date:document.getElementById("date").value,topic,presenter,points:document.getElementById("points").value.trim(),attendees,actions:document.getElementById("actions").value.trim()};
+  const {data:{session}}=await sb.auth.getSession();
+  const {error}=await sb.from("records").insert({job_id:jobId,type:"toolbox_talk",payload,created_by:session.user.id});
+  btn.disabled=false;btn.textContent="Save toolbox talk to this job";
+  if(error){msg.className="err";msg.textContent="Couldn't save: "+error.message;show("msg",true);return;}
+  document.getElementById("doneMsg").textContent=topic+" — "+attendees.length+" attendee(s) — saved.";
+  show("form",false);show("done",true);window.scrollTo(0,0);
+});
+document.getElementById("anotherBtn").addEventListener("click",()=>location.reload());
+init();
+</script>
+</body>
+</html>

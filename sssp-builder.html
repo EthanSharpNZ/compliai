@@ -202,6 +202,7 @@
       </div>
     </a>
     <div class="bar-actions">
+      <a href="app.html" style="color:#C3CDD2;text-decoration:none;font-size:13px;white-space:nowrap;">Log in / My jobs</a>
       <div class="pro-toggle" id="proToggle" title="Pro removes the CompliAI footer and adds your branding">
         <span class="dot"></span><span>Pro export</span>
       </div>
@@ -888,36 +889,45 @@ renderPreview();
     sb.from("jobs").update({ plan:state, title:title, site_address:state.site.address||null, updated_at:new Date().toISOString() })
       .eq("id",jobId).then(function(r){ setStatus(r.error?"Save failed":"Saved ✓"); });
   }
-  function injectDailyCheck(){
+  function injectJobLinks(){
     var bar=document.querySelector(".bar-actions");
-    if(!bar||document.getElementById("dailyCheckLink"))return;
-    var a=document.createElement("a");
-    a.id="dailyCheckLink"; a.href="check.html?job="+jobId; a.textContent="✓ Daily check";
-    a.style.cssText="color:#C3CDD2;text-decoration:none;font-size:12.5px;";
-    bar.insertBefore(a,bar.firstChild);
+    if(!bar||document.getElementById("recLinks"))return;
+    var span=document.createElement("span"); span.id="recLinks"; span.style.cssText="display:inline-flex;gap:12px;align-items:center;";
+    [["check.html","✓ Daily check"],["toolbox.html","☷ Toolbox"],["incident.html","⚠ Incident"]].forEach(function(x){
+      var a=document.createElement("a"); a.href=x[0]+"?job="+jobId; a.textContent=x[1];
+      a.style.cssText="color:#C3CDD2;text-decoration:none;font-size:12.5px;white-space:nowrap;"; span.appendChild(a);
+    });
+    bar.insertBefore(span,bar.firstChild);
+  }
+  function ensureSec(id){
+    var doc=document.getElementById("doc"); if(!doc)return null;
+    var sec=document.getElementById(id);
+    if(!sec){
+      sec=document.createElement("div"); sec.className="dsec"; sec.id=id;
+      var crew=null; doc.querySelectorAll(".dsec").forEach(function(d){ if(!crew && /Crew sign-off/i.test(d.textContent)) crew=d; });
+      if(crew){ crew.parentNode.insertBefore(sec,crew); } else { var b=doc.querySelector(".doc-body"); if(b) b.appendChild(sec); }
+    }
+    return sec;
+  }
+  function fillSec(id,title,head,rowsHtml){
+    var sec=ensureSec(id); if(!sec)return;
+    if(!rowsHtml){ sec.style.display="none"; sec.innerHTML=""; return; }
+    sec.style.display="";
+    sec.innerHTML='<div class="dsec-h"><span class="n mono">✓</span><span class="t display">'+title+'</span></div><table class="hazt"><thead><tr>'+head+'</tr></thead><tbody>'+rowsHtml+'</tbody></table>';
   }
   async function loadRecords(){
-    var r=await sb.from("records").select("payload,created_at").eq("job_id",jobId).eq("type","prestart_check").order("created_at",{ascending:false});
+    var r=await sb.from("records").select("type,payload,created_at").eq("job_id",jobId).order("created_at",{ascending:false});
     if(r.error)return;
-    renderRecords(r.data||[]);
-  }
-  function renderRecords(rows){
-    var doc=document.getElementById("doc"); if(!doc)return;
-    var sec=document.getElementById("dsecChecks");
-    if(!sec){
-      sec=document.createElement("div"); sec.className="dsec"; sec.id="dsecChecks";
-      var crew=null;
-      doc.querySelectorAll(".dsec").forEach(function(d){ if(!crew && /Crew sign-off/i.test(d.textContent)) crew=d; });
-      if(crew){ crew.parentNode.insertBefore(sec,crew); }
-      else { var body=doc.querySelector(".doc-body"); if(body) body.appendChild(sec); }
-    }
-    if(!rows.length){ sec.style.display="none"; sec.innerHTML=""; return; }
-    sec.style.display="";
-    var html='<div class="dsec-h"><span class="n mono">✓</span><span class="t display">Daily pre-start checks</span></div>';
-    html+='<table class="hazt"><thead><tr><th>Date</th><th>Plant</th><th>Operator</th><th>Result</th><th>Defects</th></tr></thead><tbody>';
-    html+=rows.map(function(row){var p=row.payload||{};return '<tr><td>'+esc(p.date||"—")+'</td><td>'+esc(p.item||"—")+'</td><td>'+esc(p.operator||"—")+'</td><td>'+esc(p.result||"—")+'</td><td>'+esc(p.defects||"—")+'</td></tr>';}).join("");
-    html+='</tbody></table>';
-    sec.innerHTML=html;
+    var rows=r.data||[];
+    var checks=rows.filter(function(x){return x.type==="prestart_check";});
+    var talks=rows.filter(function(x){return x.type==="toolbox_talk";});
+    var incs=rows.filter(function(x){return x.type==="incident";});
+    fillSec("dsecChecks","Daily pre-start checks","<th>Date</th><th>Plant</th><th>Operator</th><th>Result</th><th>Defects</th>",
+      checks.length?checks.map(function(row){var p=row.payload||{};return '<tr><td>'+esc(p.date||"—")+'</td><td>'+esc(p.item||"—")+'</td><td>'+esc(p.operator||"—")+'</td><td>'+esc(p.result||"—")+'</td><td>'+esc(p.defects||"—")+'</td></tr>';}).join(""):"");
+    fillSec("dsecToolbox","Toolbox talks","<th>Date</th><th>Topic</th><th>Presenter</th><th>Attendees</th>",
+      talks.length?talks.map(function(row){var p=row.payload||{};var att=(p.attendees||[]).join(", ");return '<tr><td>'+esc(p.date||"—")+'</td><td>'+esc(p.topic||"—")+'</td><td>'+esc(p.presenter||"—")+'</td><td>'+esc(att||"—")+'</td></tr>';}).join(""):"");
+    fillSec("dsecIncidents","Incident &amp; near-miss reports","<th>When</th><th>Type</th><th>Location</th><th>What happened</th><th>Notifiable</th>",
+      incs.length?incs.map(function(row){var p=row.payload||{};var w=(p.datetime||"").replace("T"," ");return '<tr><td>'+esc(w||"—")+'</td><td>'+esc(p.type||"—")+'</td><td>'+esc(p.location||"—")+'</td><td>'+esc(p.description||"—")+'</td><td>'+esc(p.notifiable||"—")+'</td></tr>';}).join(""):"");
   }
   async function start(){
     sb=supabase.createClient(SB_URL,SB_KEY);
@@ -929,7 +939,7 @@ renderPreview();
     if(res.data.plan && Object.keys(res.data.plan).length){ try{ hydrate(res.data.plan); }catch(e){} }
     loading=false;
     setStatus("Saved ✓");
-    injectDailyCheck();
+    injectJobLinks();
     loadRecords();
     var orig=renderPreview;
     renderPreview=function(){ orig(); scheduleSave(); };
