@@ -41,6 +41,8 @@
   .subbie-row input{width:100%;}
   .p-rules-list{margin:0;padding-left:22px;}
   .p-rules-list li{margin:0 0 6px;line-height:1.45;}
+  /* digital onsite records stay separate from the printed SSSP */
+  @media print{ #dsecChecks,#dsecToolbox,#dsecIncidents{display:none !important;} }
   .brand h1{font-family:'Archivo';font-weight:800;font-size:19px;margin:0;letter-spacing:-.01em;line-height:1;}
   .brand .eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#A9B6BC;margin-top:3px;}
   .bar-actions{display:flex;align-items:center;gap:10px;flex:none;}
@@ -229,6 +231,12 @@
         <div class="field"><label class="flbl">Working for (principal)</label><input type="text" data-k="site.principal" placeholder="Main contractor / client" /></div>
         <div class="field"><label class="flbl">Prepared by</label><input type="text" data-k="site.preparedBy" placeholder="Your name" /></div>
       </div>
+      <div class="field"><label class="flbl">Main contractor — site contact</label><input type="text" data-k="site.principalContact" placeholder="Contact person at the main contractor" /></div>
+      <div class="grid2">
+        <div class="field"><label class="flbl">Contact email</label><input type="email" data-k="site.principalEmail" placeholder="name@maincontractor.co.nz" /></div>
+        <div class="field"><label class="flbl">Contact phone</label><input type="text" data-k="site.principalPhone" placeholder="021…" /></div>
+      </div>
+      <div class="sec-sub" style="margin-top:-2px;">When email is switched on, this contact can get an end-of-day summary of the day's pre-start checks and toolbox talks for this job.</div>
       <div class="grid2">
         <div class="field"><label class="flbl">Start date</label><input type="date" data-k="site.startDate" /></div>
         <div class="field"><label class="flbl">Expected duration</label><input type="text" data-k="site.duration" placeholder="e.g. 5 days" /></div>
@@ -512,7 +520,7 @@ const PPE_ITEMS=[
   {id:"harness",label:"Fall harness"},{id:"resp",label:"Dust mask / respirator"},{id:"sun",label:"Sun protection"}
 ];
 const state = {
-  site:{company:"",project:"",address:"",principal:"",preparedBy:"",startDate:"",duration:""},
+  site:{company:"",project:"",address:"",principal:"",principalContact:"",principalEmail:"",principalPhone:"",preparedBy:"",startDate:"",duration:""},
   scope:"",
   ppl:{supName:"",supPhone:"",faName:"",faPhone:""},
   em:{hospital:"",assembly:"",firstaid:"",extinguisher:"",spill:"",contactName:"",contactPhone:""},

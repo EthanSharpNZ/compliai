@@ -16,29 +16,41 @@
   body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;}
   .display{font-family:'Archivo',sans-serif;}
   header{position:sticky;top:0;z-index:40;background:var(--steel);color:#fff;border-bottom:3px solid var(--brand);}
-  .bar{max-width:640px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .bar{max-width:680px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
   .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
   .brand-logo{height:26px;width:auto;display:block;}
   .bar a{color:#C3CDD2;text-decoration:none;font-size:13px;}
-  .wrap{max-width:640px;margin:0 auto;padding:22px 18px 90px;}
+  .wrap{max-width:680px;margin:0 auto;padding:22px 18px 90px;}
   h1{font-family:'Archivo';font-weight:800;font-size:22px;margin:0 0 4px;}
-  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 20px;}
+  h2{font-family:'Archivo';font-weight:700;font-size:15px;margin:0 0 12px;}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 18px;}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;}
   label{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;}
   input,select,textarea{width:100%;font-family:inherit;font-size:16px;padding:12px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);}
   input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);border-color:var(--brand);}
-  textarea{min-height:80px;resize:vertical;}
+  textarea{min-height:78px;resize:vertical;}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .field{margin-bottom:14px;}
   .btn{font-family:'Archivo';font-weight:700;font-size:15px;background:var(--brand);color:#fff;border:none;border-radius:10px;padding:14px 18px;cursor:pointer;width:100%;}
   .btn:hover{filter:brightness(1.06);}
   .btn:disabled{opacity:.6;}
   .btn.alt{background:transparent;color:var(--brand-deep);border:1.5px solid var(--line);}
-  .warn{background:var(--hazard-tint);color:#9a3a08;border-radius:10px;padding:12px 14px;font-size:13.5px;margin-bottom:14px;}
   .err{background:var(--hazard-tint);color:#9a3a08;border-radius:10px;padding:12px 14px;font-size:14px;margin-top:12px;}
   .hide{display:none;}
+  .emerg{background:#2A1108;color:#FFD9C7;border:1px solid #7a2d12;border-radius:12px;padding:14px 16px;font-size:14px;margin-bottom:18px;}
+  .emerg b{color:#fff;}
+  .emerg .num{font-family:'Archivo';font-weight:800;}
+  .chklist{display:flex;flex-direction:column;gap:2px;}
+  .chk{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line);cursor:pointer;}
+  .chk:first-child{border-top:none;}
+  .chk input{width:20px;height:20px;flex:none;margin-top:1px;}
+  .chk span{font-size:14px;}
+  .flag{background:var(--hazard-tint);border:1px solid #e7a07a;border-radius:12px;padding:14px 16px;font-size:14px;margin-bottom:16px;}
+  .flag b{color:#9a3a08;}
+  .flag a{color:var(--brand-deep);font-weight:600;}
   .ok-screen{text-align:center;padding:30px 10px;}
   .ok-screen .tick{font-size:44px;color:var(--good);}
+  .legal{font-size:12.5px;color:var(--ink-soft);margin-top:10px;}
 </style>
 </head>
 <body>
@@ -53,30 +65,64 @@
   <div id="form" class="hide">
     <h1>Incident / near-miss report</h1>
     <p class="sub" id="jobName">—</p>
-    <div class="warn"><b>If anyone is seriously hurt, make the area safe and call 111 first.</b> Notifiable events (death, serious injury/illness, or a dangerous incident) must be reported to WorkSafe NZ on <b>0800 030 040</b> and the scene left undisturbed.</div>
+
+    <div class="emerg">
+      <b>If someone is seriously hurt, make the area safe and call <span class="num">111</span> first.</b>
+      Under the Health and Safety at Work Act 2015, a <b>death</b> or other <b>notifiable event</b> must be reported to WorkSafe NZ as soon as possible on <span class="num">0800 030 040</span> (deaths: phone immediately, 24/7), the scene must be <b>left undisturbed</b> until an inspector releases it, and the record kept for <b>at least 5 years</b>.
+    </div>
+
     <div class="card">
+      <h2>What happened</h2>
       <div class="row2">
         <div class="field"><label>Date &amp; time</label><input type="datetime-local" id="datetime" /></div>
-        <div class="field"><label>Type</label><select id="type"><option>Near-miss</option><option>Injury / first aid</option><option>Serious injury</option><option>Property / plant damage</option><option>Environmental</option></select></div>
+        <div class="field"><label>Event type</label><select id="type"><option>Near-miss (no injury)</option><option>Injury — first aid only</option><option>Injury — medical treatment</option><option>Serious injury / illness</option><option>Property / plant damage</option><option>Environmental</option></select></div>
       </div>
       <div class="field"><label>Location on site</label><input type="text" id="location" placeholder="Where it happened" /></div>
-      <div class="field"><label>People involved</label><input type="text" id="people" placeholder="Names / roles" /></div>
-      <div class="field"><label>What happened</label><textarea id="description" placeholder="Describe the event"></textarea></div>
-      <div class="field"><label>Immediate actions taken</label><textarea id="actions" placeholder="What was done straight away"></textarea></div>
-      <div class="field"><label>Contributing factors</label><textarea id="factors" placeholder="What led to it (optional)"></textarea></div>
       <div class="row2">
-        <div class="field"><label>Reported to</label><input type="text" id="reportedTo" placeholder="Supervisor / manager" /></div>
-        <div class="field"><label>Notifiable to WorkSafe?</label><select id="notifiable"><option>No</option><option>Yes — notified</option><option>Yes — to be notified</option></select></div>
+        <div class="field"><label>People involved</label><input type="text" id="people" placeholder="Names / roles" /></div>
+        <div class="field"><label>Witnesses</label><input type="text" id="witnesses" placeholder="Names (if any)" /></div>
       </div>
+      <div class="field"><label>Description of what happened</label><textarea id="description" placeholder="Describe the event — what, where, how"></textarea></div>
+      <div class="field"><label>Immediate actions taken</label><textarea id="actions" placeholder="What was done straight away (first aid, made safe, etc.)"></textarea></div>
+      <div class="field"><label>Contributing factors</label><textarea id="factors" placeholder="What led to it (optional)"></textarea></div>
+    </div>
+
+    <div class="card">
+      <h2>Is this a notifiable event? (HSWA 2015)</h2>
+      <p class="sub" style="margin-bottom:12px;">Tick anything that applies. If any box is ticked, this is likely notifiable to WorkSafe.</p>
+      <label style="margin-bottom:8px;">Notifiable injury or illness</label>
+      <div class="chklist" id="injList"></div>
+      <label style="margin:16px 0 8px;">Notifiable incident (serious risk, even with no injury)</label>
+      <div class="chklist" id="incList"></div>
+    </div>
+
+    <div id="notifFlag" class="flag hide">
+      <b>This looks like a notifiable event.</b> Notify WorkSafe as soon as possible on <b>0800 030 040</b> (deaths: phone immediately), preserve the scene, and keep this record for 5 years. You can notify online with WorkSafe's tool: <a href="https://services.worksafe.govt.nz/notifications/triage/" target="_blank" rel="noopener">Notify WorkSafe →</a>
+    </div>
+
+    <div class="card">
+      <h2>Notification &amp; records</h2>
+      <div class="row2">
+        <div class="field"><label>Scene preserved?</label><select id="preserved"><option>N/A — not a notifiable event</option><option>Yes — left undisturbed</option><option>No — explain in notes</option></select></div>
+        <div class="field"><label>Notified to WorkSafe?</label><select id="notified"><option>Not required</option><option>Yes — notified</option><option>To be notified ASAP</option></select></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>WorkSafe reference (if any)</label><input type="text" id="wsref" placeholder="From WorkSafe" /></div>
+        <div class="field"><label>Reported to (internal)</label><input type="text" id="reportedTo" placeholder="Supervisor / manager" /></div>
+      </div>
+      <div class="field"><label>Reported by</label><input type="text" id="reportedBy" placeholder="Your name" /></div>
       <button class="btn" id="submitBtn">Save incident to this job</button>
+      <p class="legal">Records of notifiable events must be kept for at least 5 years (HSWA s57). CompliAI stores this against the job. This tool helps you record and assess — you remain responsible for deciding and making any required notification.</p>
       <div id="msg" class="hide"></div>
     </div>
   </div>
+
   <div id="done" class="hide">
     <div class="card ok-screen">
       <div class="tick">✓</div>
       <h1>Incident saved</h1>
       <p class="sub" id="doneMsg"></p>
+      <div id="doneFlag" class="flag hide" style="text-align:left;"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;">
         <button class="btn alt" style="width:auto;" id="anotherBtn">Log another</button>
         <a class="btn" style="width:auto;text-decoration:none;display:inline-block;" id="toJob">Back to the plan</a>
@@ -88,9 +134,40 @@
 <script>
 const sb=supabase.createClient("https://qewsprapekvvtlsbyaed.supabase.co","sb_publishable_otdr8vJvfweQ8yjlYD8rvg_LS1EvYqT");
 const jobId=new URLSearchParams(location.search).get("job");
+const INJ=[
+ "Admitted to hospital as an inpatient for immediate treatment",
+ "Amputation of any part of the body",
+ "Serious head injury",
+ "Serious eye injury",
+ "Serious burn",
+ "Degloving or scalping (skin separated from tissue)",
+ "Spinal injury",
+ "Loss of a bodily function (e.g. electric shock, reaction to a substance)",
+ "Serious lacerations",
+ "Medical treatment needed within 48 hours of exposure to a substance",
+ "A serious infection from the work (e.g. leptospirosis, Legionnaire's)"
+];
+const INC=[
+ "A substance escaping, spilling or leaking",
+ "An implosion, explosion or fire",
+ "Gas or steam escaping",
+ "A pressurised substance escaping",
+ "Electric shock from anything that could cause a lethal shock",
+ "The fall or release from height of any plant, substance or thing",
+ "Damage to, collapse, overturning or malfunction of authorised plant",
+ "The collapse or partial collapse of a structure",
+ "The collapse or failure of an excavation or its shoring"
+];
+const state={inj:INJ.map(()=>false),inc:INC.map(()=>false)};
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function show(id,on){document.getElementById(id).classList.toggle("hide",!on);}
 document.getElementById("backLink").href="sssp-builder.html?job="+jobId;
 document.getElementById("toJob").href="sssp-builder.html?job="+jobId;
+function anyTicked(){return state.inj.some(Boolean)||state.inc.some(Boolean);}
+function renderChk(listId,arr,items){
+  document.getElementById(listId).innerHTML=items.map((t,i)=>`<label class="chk"><input type="checkbox" ${arr[i]?"checked":""} onchange="tick('${listId}',${i},this.checked)"><span>${esc(t)}</span></label>`).join("");
+}
+function tick(listId,i,v){ (listId==="injList"?state.inj:state.inc)[i]=v; show("notifFlag",anyTicked()); if(v){var sel=document.getElementById("notified"); if(sel.value==="Not required") sel.value="To be notified ASAP"; document.getElementById("preserved").value="Yes — left undisturbed";} }
 async function init(){
   if(!jobId){document.getElementById("loading").textContent="No job specified.";return;}
   const {data:{session}}=await sb.auth.getSession();
@@ -99,6 +176,7 @@ async function init(){
   if(error||!data){document.getElementById("loading").textContent="Couldn't open this job.";return;}
   document.getElementById("jobName").textContent=data.title||"Job";
   document.getElementById("datetime").value=new Date().toISOString().slice(0,16);
+  renderChk("injList",state.inj,INJ);renderChk("incList",state.inc,INC);
   show("loading",false);show("form",true);
 }
 document.getElementById("submitBtn").addEventListener("click",async()=>{
@@ -106,12 +184,23 @@ document.getElementById("submitBtn").addEventListener("click",async()=>{
   const msg=document.getElementById("msg");
   if(!description){msg.className="err";msg.textContent="Describe what happened.";show("msg",true);return;}
   const btn=document.getElementById("submitBtn");btn.disabled=true;btn.textContent="Saving…";
-  const payload={datetime:document.getElementById("datetime").value,type:document.getElementById("type").value,location:document.getElementById("location").value.trim(),people:document.getElementById("people").value.trim(),description,actions:document.getElementById("actions").value.trim(),factors:document.getElementById("factors").value.trim(),reportedTo:document.getElementById("reportedTo").value.trim(),notifiable:document.getElementById("notifiable").value};
+  const isNotifiable=anyTicked();
+  const notifiableInjury=INJ.filter((t,i)=>state.inj[i]);
+  const notifiableIncident=INC.filter((t,i)=>state.inc[i]);
+  const notifiedSel=document.getElementById("notified").value;
+  const payload={datetime:document.getElementById("datetime").value,type:document.getElementById("type").value,location:document.getElementById("location").value.trim(),
+    people:document.getElementById("people").value.trim(),witnesses:document.getElementById("witnesses").value.trim(),description,
+    actions:document.getElementById("actions").value.trim(),factors:document.getElementById("factors").value.trim(),
+    notifiableInjury,notifiableIncident,isNotifiable,
+    scenePreserved:document.getElementById("preserved").value,worksafeNotified:notifiedSel,worksafeRef:document.getElementById("wsref").value.trim(),
+    reportedTo:document.getElementById("reportedTo").value.trim(),reportedBy:document.getElementById("reportedBy").value.trim(),
+    notifiable:isNotifiable?(notifiedSel):"No"};
   const {data:{session}}=await sb.auth.getSession();
   const {error}=await sb.from("records").insert({job_id:jobId,type:"incident",payload,created_by:session.user.id});
   btn.disabled=false;btn.textContent="Save incident to this job";
   if(error){msg.className="err";msg.textContent="Couldn't save: "+error.message;show("msg",true);return;}
   document.getElementById("doneMsg").textContent=payload.type+" logged and attached to the job.";
+  if(isNotifiable){var df=document.getElementById("doneFlag");df.innerHTML='<b>This looks notifiable.</b> If you haven’t already, notify WorkSafe on <b>0800 030 040</b>, preserve the scene, and keep this record 5 years. <a href="https://services.worksafe.govt.nz/notifications/triage/" target="_blank" rel="noopener">Notify WorkSafe →</a>';show("doneFlag",true);}
   show("form",false);show("done",true);window.scrollTo(0,0);
 });
 document.getElementById("anotherBtn").addEventListener("click",()=>location.reload());
