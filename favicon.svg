@@ -1,4 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#0F766E"/>
-  <text x="32" y="44" font-family="Archivo, Arial, sans-serif" font-size="40" font-weight="800" fill="#ffffff" text-anchor="middle">C</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="compliAI icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#13A99C"/>
+      <stop offset="1" stop-color="#0A4448"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="120" height="120" rx="27" ry="27" fill="url(#bg)"/>
+  <g transform="translate(60,61) scale(0.74) translate(-60,-61)">
+    <path d="M60 14 L97 26 C99 26.7 100 28.4 100 30.4 L100 58 C100 80 84 98 60 108 C36 98 20 80 20 58 L20 30.4 C20 28.4 21 26.7 23 26 Z" fill="#FFFFFF"/>
+    <polyline points="39,57 53,71 81,42"
+      fill="none" stroke="#0A5A57" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="81" cy="42" r="6" fill="#34E2B4"/>
+  </g>
 </svg>
