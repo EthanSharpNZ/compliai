@@ -252,6 +252,25 @@ async function enterApp(user){
     await loadTeam();
   }
   await loadContacts();
+  renderDevPanel();
+}
+
+/* ---- DEV ONLY: plan switcher for testing (visible to dev emails) ---- */
+const DEV_EMAILS=["ethan@flexequip.co.nz"];
+function renderDevPanel(){
+  if(!currentUser||DEV_EMAILS.indexOf((currentUser.email||"").toLowerCase())<0)return;
+  if(document.getElementById("devPanel"))return;
+  const wrap=document.getElementById("appView");
+  const bar=document.createElement("div"); bar.id="devPanel";
+  bar.style.cssText="background:#1A1B17;color:#fff;border:1px dashed #E2540B;border-radius:10px;padding:10px 14px;margin:0 0 18px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;";
+  bar.innerHTML='<b style="color:#E2540B;letter-spacing:.05em;">DEV</b> <span style="color:#C3CDD2;">Org plan: <b>'+esc(currentOrg.plan)+'</b> &mdash; switch:</span>';
+  ["free","crew","company","enterprise"].forEach(function(p){
+    const b=document.createElement("button"); b.textContent=p; b.className="btn small alt";
+    b.style.cssText="padding:6px 11px;"+(p===currentOrg.plan?"border-color:#E2540B;color:#fff;":"");
+    b.onclick=async function(){ b.disabled=true; const {error}=await sb.from("organisations").update({plan:p}).eq("id",currentOrg.id); if(error){alert(error.message);b.disabled=false;return;} location.reload(); };
+    bar.appendChild(b);
+  });
+  wrap.insertBefore(bar,wrap.firstChild);
 }
 
 /* ---- org bootstrap ---- */

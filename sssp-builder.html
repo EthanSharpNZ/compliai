@@ -233,7 +233,7 @@
       </div>
     </a>
     <div class="bar-actions">
-      <a href="app.html" style="color:#C3CDD2;text-decoration:none;font-size:13px;white-space:nowrap;">Log in / My jobs</a>
+      <a id="acctLink" href="app.html" style="color:#C3CDD2;text-decoration:none;font-size:13px;white-space:nowrap;">Log in</a>
       <div class="pro-toggle" id="proToggle" title="Pro removes the CompliAI footer and adds your branding">
         <span class="dot"></span><span>Pro export</span>
       </div>
@@ -880,26 +880,50 @@ renderPreview();
 /* ---- account / saved-job integration (only active when ?job=ID is present) ---- */
 (function(){
   var jobId=new URLSearchParams(location.search).get("job");
-  if(!jobId) return; // free, no-login builder — do nothing
   var SB_URL="https://qewsprapekvvtlsbyaed.supabase.co";
   var SB_KEY="sb_publishable_otdr8vJvfweQ8yjlYD8rvg_LS1EvYqT";
   var sb, loading=true, saveTimer=null;
   var s=document.createElement("script");
   s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-  s.onload=start; document.head.appendChild(s);
+  s.onload=boot; document.head.appendChild(s);
+
+  function updateHeaderLink(loggedIn){
+    var a=document.getElementById("acctLink");
+    if(a) a.textContent = loggedIn ? "My jobs" : "Log in";
+  }
+  async function boot(){
+    sb=supabase.createClient(SB_URL,SB_KEY);
+    var sess=await sb.auth.getSession();
+    var loggedIn=!!(sess.data&&sess.data.session);
+    updateHeaderLink(loggedIn);
+    if(!jobId){
+      if(!loggedIn) return;            // anonymous free builder — nothing to save
+      var ok=await autoCreateJob();    // logged in: start a saved job so the SSSP persists
+      if(!ok){ setStatus("Tip: log in to save — or you're at your free 3-job limit (archive one)"); return; }
+    }
+    start();
+  }
+  async function autoCreateJob(){
+    try{
+      var sess=await sb.auth.getSession(); var uid=sess.data.session.user.id;
+      var m=await sb.from("org_members").select("org_id").eq("user_id",uid).limit(1).maybeSingle();
+      var org=m.data&&m.data.org_id; if(!org) return false;
+      var ins=await sb.from("jobs").insert({owner_id:uid,org_id:org,title:"Untitled job"}).select("id").single();
+      if(ins.error||!ins.data) return false;
+      jobId=ins.data.id;
+      history.replaceState(null,"","sssp-builder.html?job="+jobId);
+      return true;
+    }catch(e){ return false; }
+  }
 
   function setStatus(t){
     var el=document.getElementById("jobStatus");
     if(!el){
       var bar=document.querySelector(".bar-actions");
       if(!bar) return;
-      var link=document.createElement("a");
-      link.href="app.html"; link.textContent="← My jobs";
-      link.style.cssText="color:#C3CDD2;text-decoration:none;font-size:12.5px;";
       el=document.createElement("span"); el.id="jobStatus";
       el.style.cssText="font-size:12px;color:#9FB0B7;";
       bar.insertBefore(el,bar.firstChild);
-      bar.insertBefore(link,bar.firstChild);
     }
     el.textContent=t;
   }
