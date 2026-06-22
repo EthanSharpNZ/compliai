@@ -28,6 +28,19 @@
   .mark{width:34px;height:34px;flex:none;border-radius:7px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--brand);box-shadow:inset 0 0 0 2px rgba(255,255,255,.18);}
   .mark img{width:100%;height:100%;display:block;}
   .brand-logo{height:30px;width:auto;display:block;}
+  /* optional add-on sections */
+  .opt-divider{font-family:'Archivo';font-weight:700;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);margin:22px 2px 12px;}
+  .opt-sec{border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:14px;overflow:hidden;}
+  .opt-sec>summary{cursor:pointer;list-style:none;padding:15px 18px;font-family:'Archivo';font-weight:700;font-size:14px;color:var(--steel);display:flex;align-items:center;gap:10px;}
+  .opt-sec>summary::-webkit-details-marker{display:none;}
+  .opt-sec>summary::before{content:"+";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:5px;background:var(--brand-tint);color:var(--brand-deep);font-weight:800;flex:none;}
+  .opt-sec[open]>summary::before{content:"\2013";}
+  .opt-sec .opt-body{padding:0 18px 18px;}
+  .opt-sec .opt-body .sec-sub{margin-bottom:12px;}
+  .subbie-row{display:grid;grid-template-columns:1fr 1fr 1fr 76px 26px;gap:6px;margin-bottom:6px;align-items:center;}
+  .subbie-row input{width:100%;}
+  .p-rules-list{margin:0;padding-left:22px;}
+  .p-rules-list li{margin:0 0 6px;line-height:1.45;}
   .brand h1{font-family:'Archivo';font-weight:800;font-size:19px;margin:0;letter-spacing:-.01em;line-height:1;}
   .brand .eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#A9B6BC;margin-top:3px;}
   .bar-actions{display:flex;align-items:center;gap:10px;flex:none;}
@@ -268,10 +281,101 @@
       </div>
       <div class="field"><label class="flbl">Nearest medical centre / hospital</label><input type="text" data-k="em.hospital" placeholder="e.g. Middlemore Hospital, Otahuhu" /></div>
       <div class="field"><label class="flbl">Emergency assembly point</label><input type="text" data-k="em.assembly" placeholder="e.g. Front gate, by the street letterbox" /></div>
+      <div class="grid2">
+        <div class="field"><label class="flbl">First-aid kit location</label><input type="text" data-k="em.firstaid" placeholder="e.g. Site office, by the door" /></div>
+        <div class="field"><label class="flbl">Fire extinguisher location</label><input type="text" data-k="em.extinguisher" placeholder="e.g. Tool trailer & switchboard" /></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label class="flbl">Spill kit location</label><input type="text" data-k="em.spill" placeholder="e.g. Plant shed, north wall" /></div>
+        <div class="field"><label class="flbl">Site emergency contact (name)</label><input type="text" data-k="em.contactName" placeholder="e.g. Foreman – Jordan Smith" /></div>
+      </div>
+      <div class="field"><label class="flbl">Site emergency contact (phone)</label><input type="text" data-k="em.contactPhone" placeholder="e.g. 021 123 4567" /></div>
     </div>
 
+    <div class="opt-divider">Optional sections — add only what applies to this job</div>
+
+    <details class="opt-sec">
+      <summary>Site rules &amp; induction</summary>
+      <div class="opt-body">
+        <div class="sec-sub">The short list of rules every worker is briefed on at induction.</div>
+        <div class="haz-list" id="rulesList"></div>
+        <button class="add-haz" onclick="addRule()">+ Add rule</button>
+        <button class="add-haz" onclick="loadCommonRules()" style="margin-left:8px;">Load common rules</button>
+      </div>
+    </details>
+
+    <details class="opt-sec">
+      <summary>Plant &amp; equipment register</summary>
+      <div class="opt-body">
+        <div class="sec-sub">Plant and equipment on site and its inspection status. EWPs/scissor lifts, scaffold, harnesses and ladders need current inspection records.</div>
+        <div class="ai-row"><button class="btn-ai" id="draftEquipBtn" onclick="draftEquip()"><span class="spark">✦</span> <span id="draftEquipLbl">Suggest plant from the job</span></button></div>
+        <div class="haz-list" id="equipList"></div>
+        <button class="add-haz" onclick="addEquip()">+ Add plant / equipment</button>
+      </div>
+    </details>
+
+    <details class="opt-sec">
+      <summary>Electrical test &amp; tag register</summary>
+      <div class="opt-body">
+        <div class="sec-sub">Portable appliances and leads and their test status. AS/NZS 3760 is the NZ standard for in-service testing. Enter dates as dd/mm/yyyy.</div>
+        <div class="haz-list" id="tagtestList"></div>
+        <button class="add-haz" onclick="addTagtest()">+ Add an item</button>
+      </div>
+    </details>
+
+    <details class="opt-sec">
+      <summary>Hazardous substances register</summary>
+      <div class="opt-body">
+        <div class="sec-sub">Hazardous substances kept or used on site (LPG, fuels, solvents, silica dust), their controls and whether an SDS is held.</div>
+        <div class="ai-row"><button class="btn-ai" id="sdsDraftBtn" onclick="draftSds()"><span class="spark">✦</span> <span id="sdsDraftLbl">Suggest substances from the job</span></button></div>
+        <div class="haz-list" id="sdsList"></div>
+        <button class="add-haz" onclick="addSds()">+ Add a substance</button>
+      </div>
+    </details>
+
+    <details class="opt-sec">
+      <summary>Training, licences &amp; competencies</summary>
+      <div class="opt-body">
+        <div class="sec-sub">The tickets the job needs. Common NZ examples: EWP/scissor-lift, scaffolding, hot work, confined space, first aid, Site Safe passport, asbestos.</div>
+        <div class="haz-list" id="trainList"></div>
+        <button class="add-haz" onclick="addTrain()">+ Add competency</button>
+      </div>
+    </details>
+
+    <details class="opt-sec">
+      <summary>Subcontractors &amp; notifiable works</summary>
+      <div class="opt-body">
+        <div class="sec-sub">Subcontractors on site, plus any high-risk work. Some items (scaffold over 5m, excavation over 1.5m, asbestos, demolition, confined space, hot work) need notification to WorkSafe NZ and/or a permit.</div>
+        <div id="subbieList"></div>
+        <button class="add-haz" onclick="addSubbie()">+ Add subcontractor</button>
+        <div class="sec-sub" style="margin:14px 0 8px;font-weight:600;color:var(--steel);">High-risk / notifiable works on this job</div>
+        <div class="ppe-grid" id="subbieChips"></div>
+      </div>
+    </details>
+
+    <details class="opt-sec">
+      <summary>Incident &amp; near-miss reporting</summary>
+      <div class="opt-body">
+        <div class="grid2">
+          <div class="field"><label class="flbl">Report incidents to (name)</label><input type="text" data-k="incident.reportTo" placeholder="e.g. Site supervisor — Jane Doe" /></div>
+          <div class="field"><label class="flbl">Their phone</label><input type="text" data-k="incident.phone" placeholder="021…" /></div>
+        </div>
+        <div class="field"><label class="flbl">Reporting procedure</label><textarea data-k="incident.procedure" id="incidentProcInput" placeholder="How to report incidents and near-misses on this site"></textarea></div>
+        <button class="add-haz" onclick="incidentLoadStd()">Load standard procedure</button>
+      </div>
+    </details>
+
+    <details class="opt-sec">
+      <summary>Toolbox talk record</summary>
+      <div class="opt-body">
+        <div class="sec-sub">Log the on-site toolbox talks / safety briefings held for this job.</div>
+        <div id="toolboxList"></div>
+        <button class="add-haz" onclick="addToolbox()">+ Add toolbox talk</button>
+      </div>
+    </details>
+
     <div class="section">
-      <div class="sec-head"><span class="sec-num">07</span><span class="sec-title display">Crew sign-off</span></div>
+      <div class="sec-head"><span class="sec-num">15</span><span class="sec-title display">Crew sign-off</span></div>
       <div class="sec-sub">List the crew. The printed plan leaves blank lines for them to sign on site, plus a few spares.</div>
       <div id="crewList"></div>
       <button class="add-haz" onclick="addCrew()">+ Add crew member</button>
@@ -336,12 +440,56 @@
             <div class="ppl">
               <div class="pcell"><div class="role">Nearest medical</div><div class="who" id="pHosp" style="font-weight:500;font-size:13.5px;">—</div></div>
               <div class="pcell"><div class="role">Assembly point</div><div class="who" id="pAssem" style="font-weight:500;font-size:13.5px;">—</div></div>
+              <div class="pcell" id="pFirstAidCell" style="display:none;"><div class="role">First-aid kit</div><div class="who" id="pFirstAid" style="font-weight:500;font-size:13.5px;">—</div></div>
+              <div class="pcell" id="pExtCell" style="display:none;"><div class="role">Fire extinguisher</div><div class="who" id="pExt" style="font-weight:500;font-size:13.5px;">—</div></div>
+              <div class="pcell" id="pSpillCell" style="display:none;"><div class="role">Spill kit</div><div class="who" id="pSpill" style="font-weight:500;font-size:13.5px;">—</div></div>
+              <div class="pcell" id="pSiteContactCell" style="display:none;"><div class="role">Site emergency contact</div><div class="who" id="pSiteContact" style="font-weight:500;font-size:13.5px;">—</div></div>
             </div>
             <div class="em-call"><span class="lbl">In a life-threatening emergency, call</span><span class="num111 display">111</span></div>
           </div>
 
+          <div class="dsec" id="dsecRules">
+            <div class="dsec-h"><span class="n mono">07</span><span class="t display">Site rules &amp; induction</span></div>
+            <div id="pRulesWrap"></div>
+          </div>
+
+          <div class="dsec" id="dsecEquip">
+            <div class="dsec-h"><span class="n mono">08</span><span class="t display">Plant &amp; equipment register</span></div>
+            <div id="pEquipWrap"></div>
+          </div>
+
+          <div class="dsec" id="dsecTagtest">
+            <div class="dsec-h"><span class="n mono">09</span><span class="t display">Electrical test &amp; tag register</span></div>
+            <div id="pTagtestWrap"></div>
+          </div>
+
+          <div class="dsec" id="dsecSds">
+            <div class="dsec-h"><span class="n mono">10</span><span class="t display">Hazardous substances register</span></div>
+            <div id="pSdsWrap"></div>
+          </div>
+
+          <div class="dsec" id="dsecTrain">
+            <div class="dsec-h"><span class="n mono">11</span><span class="t display">Training, licences &amp; competencies</span></div>
+            <div id="pTrainWrap"></div>
+          </div>
+
+          <div class="dsec" id="dsecSubbie">
+            <div class="dsec-h"><span class="n mono">12</span><span class="t display">Subcontractors &amp; notifiable works</span></div>
+            <div id="pSubbieWrap"></div>
+          </div>
+
+          <div class="dsec" id="dsecIncident">
+            <div class="dsec-h"><span class="n mono">13</span><span class="t display">Incident &amp; near-miss reporting</span></div>
+            <div id="pIncidentWrap"></div>
+          </div>
+
+          <div class="dsec" id="dsecToolbox">
+            <div class="dsec-h"><span class="n mono">14</span><span class="t display">Toolbox talk record</span></div>
+            <div id="pToolboxWrap"></div>
+          </div>
+
           <div class="dsec">
-            <div class="dsec-h"><span class="n mono">07</span><span class="t display">Crew sign-off</span></div>
+            <div class="dsec-h"><span class="n mono">15</span><span class="t display">Crew sign-off</span></div>
             <div class="sign-note">By signing, each person confirms they've been briefed on this plan and understand the hazards and controls before starting work.</div>
             <table class="signt"><thead><tr><th style="width:30%">Name</th><th style="width:26%">Role</th><th style="width:28%">Signature</th><th style="width:16%">Date</th></tr></thead><tbody id="pSignBody"></tbody></table>
           </div>
@@ -366,9 +514,12 @@ const state = {
   site:{company:"",project:"",address:"",principal:"",preparedBy:"",startDate:"",duration:""},
   scope:"",
   ppl:{supName:"",supPhone:"",faName:"",faPhone:""},
-  em:{hospital:"",assembly:""},
+  em:{hospital:"",assembly:"",firstaid:"",extinguisher:"",spill:"",contactName:"",contactPhone:""},
   hazards:[], swms:[], crew:[],
   ppe:{selected:{},other:""},
+  rules:[], equip:[], tagtest:[], sds:[], train:[], toolbox:[],
+  subbieSubs:[], subbieNotif:{},
+  incident:{reportTo:"",phone:"",procedure:""},
   pro:false
 };
 
@@ -518,6 +669,65 @@ async function draftSteps(){
   finally{btn.disabled=false;}
 }
 
+/* ---- site rules & induction ---- */
+function rulesRowHtml(r,i){return `<div class="haz-row"><button class="del" onclick="delRule(${i})">×</button><span class="rownum mono">${String(i+1).padStart(2,"0")}</span><input class="haz-title" value="${esc(r)}" oninput="editRule(${i},this.value)" placeholder="e.g. Sign in and out daily"/></div>`;}
+function renderRulesInputs(){const w=document.getElementById("rulesList");w.innerHTML=state.rules.length?state.rules.map(rulesRowHtml).join(""):`<div class="haz-empty">No rules yet — add your own or load common ones.</div>`;}
+function editRule(i,v){state.rules[i]=v;renderPreview();}
+function addRule(){state.rules.push("");renderRulesInputs();renderPreview();}
+function delRule(i){state.rules.splice(i,1);renderRulesInputs();renderPreview();}
+function loadCommonRules(){const def=["Sign in and out daily","Attend the site induction before starting work","PPE required at all times on site","Report all hazards, incidents and near-misses immediately","No work under the influence of alcohol or drugs","Keep walkways and exits clear","Only operate plant you are trained and ticketed for","Follow the SSSP and any permits in place"];def.forEach(r=>{if(!state.rules.includes(r))state.rules.push(r);});renderRulesInputs();renderPreview();}
+
+/* ---- plant & equipment register ---- */
+function equipRowHtml(e,i){return `<div class="haz-row" data-i="${i}"><span class="rownum mono">P${String(i+1).padStart(2,"0")}</span><button class="del" onclick="delEquip(${i})">×</button><span class="haz-mini-lbl">Item / plant</span><input class="haz-title" value="${esc(e.item)}" oninput="editEquip(${i},'item',this.value)"/><div class="haz-grid"><div><span class="haz-mini-lbl">Make &amp; ID / serial</span><input value="${esc(e.makeId)}" oninput="editEquip(${i},'makeId',this.value)"/></div><div><span class="haz-mini-lbl">Last inspected</span><input placeholder="dd/mm/yyyy" value="${esc(e.lastInspected)}" oninput="editEquip(${i},'lastInspected',this.value)"/></div><div><span class="haz-mini-lbl">Status</span><input value="${esc(e.status)}" oninput="editEquip(${i},'status',this.value)"/></div></div></div>`;}
+function renderEquipInputs(){const w=document.getElementById("equipList");w.innerHTML=state.equip.length?state.equip.map(equipRowHtml).join(""):`<div class="haz-empty">No plant or equipment yet…</div>`;}
+function editEquip(i,f,v){state.equip[i][f]=v;renderPreview();}
+function addEquip(){state.equip.push({item:"",makeId:"",lastInspected:"",status:""});renderEquipInputs();renderPreview();}
+function delEquip(i){state.equip.splice(i,1);renderEquipInputs();renderPreview();}
+async function draftEquip(){const btn=document.getElementById("draftEquipBtn"),lbl=document.getElementById("draftEquipLbl");if(btn.disabled)return;const old=lbl.textContent;btn.disabled=true;lbl.textContent="Thinking…";try{const arr=await callClaude(`You are a NZ construction health & safety adviser. Based on this job scope: "${state.scope||"general construction work"}", list the plant and equipment likely on site. Reflect NZ WorkSafe good practice — include items needing inspection records (EWPs/scissor lifts, scaffold, fall-arrest harnesses, ladders, power tools). Return ONLY a JSON array [{"item":"","makeId":"","lastInspected":"","status":""}] of 4-8 items. Fill "item" only; leave the others as empty strings.`);if(Array.isArray(arr)&&arr.length){arr.forEach(o=>state.equip.push({item:(o&&o.item)||"",makeId:(o&&o.makeId)||"",lastInspected:(o&&o.lastInspected)||"",status:(o&&o.status)||""}));renderEquipInputs();renderPreview();}}catch(err){alert("Sorry, couldn't suggest plant right now. Please add items manually.");}finally{btn.disabled=false;lbl.textContent=old;}}
+
+/* ---- electrical test & tag ---- */
+function tagtestRowHtml(t,i){return `<div class="haz-row" data-i="${i}"><span class="rownum mono">E${String(i+1).padStart(2,"0")}</span><button class="del" onclick="delTagtest(${i})">×</button><span class="haz-mini-lbl">Appliance / lead</span><input class="haz-title" value="${esc(t.item)}" oninput="editTagtest(${i},'item',this.value)"/><div class="haz-grid"><div><span class="haz-mini-lbl">Last test</span><input placeholder="dd/mm/yyyy" value="${esc(t.last)}" oninput="editTagtest(${i},'last',this.value)"/></div><div><span class="haz-mini-lbl">Next test due</span><input placeholder="dd/mm/yyyy" value="${esc(t.next)}" oninput="editTagtest(${i},'next',this.value)"/></div><div><span class="haz-mini-lbl">Tester / tag colour</span><input value="${esc(t.tester)}" oninput="editTagtest(${i},'tester',this.value)"/></div><div><span class="haz-mini-lbl">Result</span><input placeholder="Pass / Fail" value="${esc(t.result)}" oninput="editTagtest(${i},'result',this.value)"/></div></div></div>`;}
+function renderTagtestInputs(){const w=document.getElementById("tagtestList");w.innerHTML=state.tagtest.length?state.tagtest.map(tagtestRowHtml).join(""):`<div class="haz-empty">No items yet…</div>`;}
+function editTagtest(i,f,v){state.tagtest[i][f]=v;renderPreview();}
+function addTagtest(){state.tagtest.push({item:"",last:"",next:"",tester:"",result:""});renderTagtestInputs();renderPreview();}
+function delTagtest(i){state.tagtest.splice(i,1);renderTagtestInputs();renderPreview();}
+
+/* ---- hazardous substances (SDS) ---- */
+function sdsRowHtml(s,i){return `<div class="haz-row" data-i="${i}"><span class="rownum mono">S${String(i+1).padStart(2,"0")}</span><button class="del" onclick="delSds(${i})">×</button><span class="haz-mini-lbl">Substance</span><input class="haz-title" value="${esc(s.substance)}" oninput="editSds(${i},'substance',this.value)"/><div class="haz-grid"><div><span class="haz-mini-lbl">Hazard</span><input value="${esc(s.hazard)}" oninput="editSds(${i},'hazard',this.value)"/></div><div><span class="haz-mini-lbl">Storage / location</span><input value="${esc(s.storage)}" oninput="editSds(${i},'storage',this.value)"/></div><div><span class="haz-mini-lbl">Controls</span><input value="${esc(s.controls)}" oninput="editSds(${i},'controls',this.value)"/></div><div><span class="haz-mini-lbl">SDS held</span><input placeholder="Yes / No" value="${esc(s.sds)}" oninput="editSds(${i},'sds',this.value)"/></div></div></div>`;}
+function renderSdsInputs(){const w=document.getElementById("sdsList");w.innerHTML=state.sds.length?state.sds.map(sdsRowHtml).join(""):`<div class="haz-empty">No substances yet…</div>`;}
+function editSds(i,f,v){state.sds[i][f]=v;renderPreview();}
+function addSds(){state.sds.push({substance:"",hazard:"",storage:"",controls:"",sds:""});renderSdsInputs();renderPreview();}
+function delSds(i){state.sds.splice(i,1);renderSdsInputs();renderPreview();}
+async function draftSds(){const btn=document.getElementById("sdsDraftBtn"),lbl=document.getElementById("sdsDraftLbl");if(btn.disabled)return;const old=lbl.textContent;btn.disabled=true;lbl.textContent="Thinking…";try{const arr=await callClaude(`You are a NZ health and safety advisor. For this job scope: "${state.scope||""}", list hazardous substances likely kept or used on site. Return 4-8 items. For each: "substance" (e.g. LPG, oxy-acetylene, petrol, solvents, adhesives, silica dust), "hazard" (e.g. flammable, toxic, asphyxiant), "storage" (where/how stored), "controls" (plain-English). Always include "sds" as an empty string. Return ONLY a JSON array [{"substance":"","hazard":"","storage":"","controls":"","sds":""}].`);if(Array.isArray(arr)&&arr.length){arr.forEach(o=>state.sds.push({substance:(o&&o.substance)||"",hazard:(o&&o.hazard)||"",storage:(o&&o.storage)||"",controls:(o&&o.controls)||"",sds:(o&&o.sds)||""}));renderSdsInputs();renderPreview();}}catch(e){alert("Couldn't draft substances — please add them manually.");}finally{btn.disabled=false;lbl.textContent=old;}}
+
+/* ---- training, licences & competencies ---- */
+function trainRowHtml(t,i){return `<div class="haz-row" data-i="${i}"><span class="rownum mono">T${String(i+1).padStart(2,"0")}</span><button class="del" onclick="delTrain(${i})">×</button><span class="haz-mini-lbl">Person</span><input class="haz-title" value="${esc(t.person)}" oninput="editTrain(${i},'person',this.value)"/><div class="haz-grid"><div><span class="haz-mini-lbl">Qualification / licence</span><input value="${esc(t.qual)}" oninput="editTrain(${i},'qual',this.value)"/></div><div><span class="haz-mini-lbl">Expiry</span><input placeholder="dd/mm/yyyy" value="${esc(t.expiry)}" oninput="editTrain(${i},'expiry',this.value)"/></div></div></div>`;}
+function renderTrainInputs(){const w=document.getElementById("trainList");w.innerHTML=state.train.length?state.train.map(trainRowHtml).join(""):`<div class="haz-empty">No competencies yet…</div>`;}
+function editTrain(i,f,v){state.train[i][f]=v;renderPreview();}
+function addTrain(){state.train.push({person:"",qual:"",expiry:""});renderTrainInputs();renderPreview();}
+function delTrain(i){state.train.splice(i,1);renderTrainInputs();renderPreview();}
+
+/* ---- toolbox talk record ---- */
+function toolboxRowHtml(t,i){return `<div class="crew-row" data-i="${i}"><input value="${esc(t.date)}" placeholder="dd/mm/yyyy" oninput="editToolbox(${i},'date',this.value)"/><input value="${esc(t.topic)}" placeholder="Topic (e.g. working at height)" oninput="editToolbox(${i},'topic',this.value)"/><input value="${esc(t.presenter)}" placeholder="Presenter" oninput="editToolbox(${i},'presenter',this.value)"/><button class="del" onclick="delToolbox(${i})">×</button></div>`;}
+function renderToolboxInputs(){const w=document.getElementById("toolboxList");w.innerHTML=state.toolbox.length?state.toolbox.map(toolboxRowHtml).join(""):`<div class="haz-empty" style="padding:16px;">Nothing yet…</div>`;}
+function editToolbox(i,f,v){state.toolbox[i][f]=v;renderPreview();}
+function addToolbox(){state.toolbox.push({date:"",topic:"",presenter:""});renderToolboxInputs();renderPreview();}
+function delToolbox(i){state.toolbox.splice(i,1);renderToolboxInputs();renderPreview();}
+
+/* ---- subcontractors & notifiable works ---- */
+function subbieRowHtml(s,i){return `<div class="subbie-row" data-i="${i}"><input value="${esc(s.company)}" placeholder="Company" oninput="editSubbie(${i},'company',this.value)"/><input value="${esc(s.trade)}" placeholder="Trade" oninput="editSubbie(${i},'trade',this.value)"/><input value="${esc(s.contact)}" placeholder="Site contact" oninput="editSubbie(${i},'contact',this.value)"/><input value="${esc(s.sssp)}" placeholder="SSSP Y/N" oninput="editSubbie(${i},'sssp',this.value)"/><button class="del" onclick="delSubbie(${i})">×</button></div>`;}
+function renderSubbieInputs(){document.getElementById("subbieList").innerHTML=state.subbieSubs.length?state.subbieSubs.map(subbieRowHtml).join(""):`<div class="haz-empty">No subcontractors yet…</div>`;}
+function editSubbie(i,k,v){state.subbieSubs[i][k]=v;renderPreview();}
+function addSubbie(){state.subbieSubs.push({company:"",trade:"",contact:"",sssp:""});renderSubbieInputs();renderPreview();}
+function delSubbie(i){state.subbieSubs.splice(i,1);renderSubbieInputs();renderPreview();}
+var SUBBIE_NOTIF=[{id:"scaffold5m",label:"Scaffolding over 5m"},{id:"services",label:"Work near overhead/underground services"},{id:"excav15",label:"Excavation/trenching over 1.5m"},{id:"asbestos",label:"Asbestos removal"},{id:"hotwork",label:"Hot work"},{id:"confined",label:"Confined space entry"},{id:"demolition",label:"Demolition"},{id:"lifting",label:"Lifting over public/roadway"},{id:"water",label:"Work over/near water"}];
+function renderSubbieChips(){document.getElementById("subbieChips").innerHTML=SUBBIE_NOTIF.map(function(n){var on=!!state.subbieNotif[n.id];return `<div class="ppe-chip ${on?'on':''}" onclick="toggleSubbie('${n.id}')"><span class="tick">${on?'✓':''}</span>${esc(n.label)}</div>`;}).join("");}
+function toggleSubbie(id){if(state.subbieNotif[id])delete state.subbieNotif[id];else state.subbieNotif[id]=true;renderSubbieChips();renderPreview();}
+
+/* ---- incident & near-miss reporting ---- */
+var INCIDENT_STD="Make the area safe and give first aid if needed. Report all injuries, incidents and near-misses to the site supervisor immediately. Record the event in the site incident register. Do not disturb the scene of a serious event.";
+function incidentLoadStd(){state.incident.procedure=INCIDENT_STD;var ta=document.getElementById("incidentProcInput");if(ta)ta.value=INCIDENT_STD;renderPreview();}
+
 /* ---- preview ---- */
 function val(s,fallback){return s&&s.trim()?esc(s):fallback;}
 function renderPreview(){
@@ -566,6 +776,51 @@ function renderPreview(){
   for(let i=0;i<blanks;i++)rows+=`<tr><td></td><td></td><td></td><td></td></tr>`;
   document.getElementById("pSignBody").innerHTML=rows;
 
+  // emergency — optional location/contact rows (show only when filled)
+  (function(){function setRow(cellId,valId,value){var cell=document.getElementById(cellId);var has=value&&value.trim()!=="";cell.style.display=has?"":"none";if(has)document.getElementById(valId).textContent=value;}
+  setRow("pFirstAidCell","pFirstAid",state.em.firstaid);setRow("pExtCell","pExt",state.em.extinguisher);setRow("pSpillCell","pSpill",state.em.spill);
+  var nm=(state.em.contactName||"").trim(),ph=(state.em.contactPhone||"").trim();var contact=nm&&ph?(nm+" · "+ph):(nm||ph);var sc=document.getElementById("pSiteContactCell");sc.style.display=contact?"":"none";if(contact)document.getElementById("pSiteContact").textContent=contact;})();
+
+  // site rules & induction
+  const rulesItems=state.rules.filter(r=>r&&r.trim());
+  document.getElementById("dsecRules").style.display=rulesItems.length?"":"none";
+  document.getElementById("pRulesWrap").innerHTML=rulesItems.length?`<ol class="p-rules-list">`+rulesItems.map(r=>`<li>${esc(r)}</li>`).join("")+`</ol>`:"";
+
+  // plant & equipment register
+  const equipRows=state.equip.filter(e=>e.item||e.makeId||e.lastInspected||e.status);
+  document.getElementById("dsecEquip").style.display=equipRows.length?"":"none";
+  document.getElementById("pEquipWrap").innerHTML=equipRows.length?`<table class="hazt"><thead><tr><th></th><th>Item / plant</th><th>Make &amp; ID</th><th>Last inspected</th><th>Status</th></tr></thead><tbody>`+equipRows.map((e,i)=>`<tr><td class="num">${String(i+1).padStart(2,"0")}</td><td>${esc(e.item)||"—"}</td><td>${esc(e.makeId)||"—"}</td><td>${esc(e.lastInspected)||"—"}</td><td>${esc(e.status)||"—"}</td></tr>`).join("")+`</tbody></table>`:"";
+
+  // electrical test & tag
+  const tagRows=state.tagtest.filter(t=>t.item||t.last||t.next||t.tester||t.result);
+  document.getElementById("dsecTagtest").style.display=tagRows.length?"":"none";
+  document.getElementById("pTagtestWrap").innerHTML=tagRows.length?`<table class="hazt"><thead><tr><th></th><th>Appliance / lead</th><th>Last test</th><th>Next due</th><th>Tester</th><th>Result</th></tr></thead><tbody>`+tagRows.map((t,i)=>`<tr><td class="num">${String(i+1).padStart(2,"0")}</td><td>${esc(t.item)||"—"}</td><td>${esc(t.last)||"—"}</td><td>${esc(t.next)||"—"}</td><td>${esc(t.tester)||"—"}</td><td>${esc(t.result)||"—"}</td></tr>`).join("")+`</tbody></table>`:"";
+
+  // hazardous substances (SDS)
+  const sdsRows=state.sds.filter(s=>s.substance||s.hazard||s.storage||s.controls||s.sds);
+  document.getElementById("dsecSds").style.display=sdsRows.length?"":"none";
+  document.getElementById("pSdsWrap").innerHTML=sdsRows.length?`<table class="hazt"><thead><tr><th></th><th>Substance</th><th>Hazard</th><th>Storage / location</th><th>Controls</th><th>SDS</th></tr></thead><tbody>`+sdsRows.map((s,i)=>`<tr><td class="num">${String(i+1).padStart(2,"0")}</td><td>${esc(s.substance)||"—"}</td><td>${esc(s.hazard)||"—"}</td><td>${esc(s.storage)||"—"}</td><td>${esc(s.controls)||"—"}</td><td>${esc(s.sds)||"—"}</td></tr>`).join("")+`</tbody></table>`:"";
+
+  // training, licences & competencies
+  const trainRows=state.train.filter(t=>t.person||t.qual||t.expiry);
+  document.getElementById("dsecTrain").style.display=trainRows.length?"":"none";
+  document.getElementById("pTrainWrap").innerHTML=trainRows.length?`<table class="hazt"><thead><tr><th></th><th>Person</th><th>Qualification / licence</th><th>Expiry</th></tr></thead><tbody>`+trainRows.map((t,i)=>`<tr><td class="num">${String(i+1).padStart(2,"0")}</td><td>${esc(t.person)||"—"}</td><td>${esc(t.qual)||"—"}</td><td>${esc(t.expiry)||"—"}</td></tr>`).join("")+`</tbody></table>`:"";
+
+  // subcontractors & notifiable works
+  const subRows=state.subbieSubs.filter(s=>s.company||s.trade||s.contact||s.sssp);
+  const subTicked=SUBBIE_NOTIF.filter(n=>state.subbieNotif[n.id]);
+  const subSec=document.getElementById("dsecSubbie");
+  if(!subRows.length&&!subTicked.length){subSec.style.display="none";document.getElementById("pSubbieWrap").innerHTML="";}
+  else{subSec.style.display="";let sh="";if(subRows.length){sh+=`<table class="hazt"><thead><tr><th>Company</th><th>Trade</th><th>Site contact</th><th>SSSP received</th></tr></thead><tbody>`+subRows.map(s=>`<tr><td>${esc(s.company)||"—"}</td><td>${esc(s.trade)||"—"}</td><td>${esc(s.contact)||"—"}</td><td>${esc(s.sssp)||"—"}</td></tr>`).join("")+`</tbody></table>`;}if(subTicked.length){sh+=`<div style="font-weight:600;margin:10px 0 6px;font-size:13px;">High-risk / notifiable works on this job</div><div class="ppe-badges">`+subTicked.map(n=>`<span class="ppe-badge">${esc(n.label)}</span>`).join("")+`</div>`;}document.getElementById("pSubbieWrap").innerHTML=sh;}
+
+  // incident & near-miss reporting
+  (function(){var ic=state.incident||{};var rt=(ic.reportTo||"").trim(),iph=(ic.phone||"").trim(),pr=(ic.procedure||"").trim();var has=rt||iph||pr;var ds=document.getElementById("dsecIncident"),wr=document.getElementById("pIncidentWrap");if(!has){ds.style.display="none";wr.innerHTML="";return;}ds.style.display="";var h="";if(rt||iph){h+=`<p style="margin:0 0 8px;">Report incidents and near-misses to `+(rt?`<b>${esc(rt)}</b>`:"")+((rt&&iph)?" — ":"")+(iph?`<b>${esc(iph)}</b>`:"")+`.</p>`;}if(pr){h+=`<p style="margin:0 0 8px;">${esc(pr).replace(/\n/g,"<br>")}</p>`;}h+=`<div style="margin-top:10px;padding:10px 12px;background:var(--hazard-tint);border-radius:8px;font-size:12.5px;"><b>Notifiable events</b> (a death, serious injury/illness, or dangerous incident) must be reported to WorkSafe NZ as soon as possible on <b>0800 030 040</b>, and the scene left undisturbed.</div>`;wr.innerHTML=h;})();
+
+  // toolbox talk record
+  const tbRows=state.toolbox.filter(t=>t.date||t.topic||t.presenter);
+  document.getElementById("dsecToolbox").style.display=tbRows.length?"":"none";
+  document.getElementById("pToolboxWrap").innerHTML=tbRows.length?`<table class="hazt"><thead><tr><th>Date</th><th>Topic</th><th>Presenter</th></tr></thead><tbody>`+tbRows.map(t=>`<tr><td>${esc(t.date)||"—"}</td><td>${esc(t.topic)||"—"}</td><td>${esc(t.presenter)||"—"}</td></tr>`).join("")+`</tbody></table>`:"";
+
   document.getElementById("footStamp").setAttribute("data-pro",state.pro?"1":"0");
 }
 
@@ -573,6 +828,14 @@ renderHazInputs();
 renderStepInputs();
 renderPpeChips();
 renderCrewInputs();
+renderRulesInputs();
+renderEquipInputs();
+renderTagtestInputs();
+renderSdsInputs();
+renderTrainInputs();
+renderSubbieInputs();
+renderSubbieChips();
+renderToolboxInputs();
 renderPreview();
 </script>
 </body>
