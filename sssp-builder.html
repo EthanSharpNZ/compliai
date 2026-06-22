@@ -107,7 +107,9 @@
   .doc-shell{position:sticky;top:84px;}
   @media(max-width:920px){.doc-shell{position:static;}}
   .doc{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 0 rgba(0,0,0,.02), 0 18px 40px -28px rgba(36,49,55,.4);overflow:hidden;}
-  .doc-top{background:var(--steel);color:#fff;padding:22px 24px 20px;border-bottom:3px solid var(--hazard);}
+  .doc-top{background:var(--steel);color:#fff;padding:22px 24px 20px;border-bottom:3px solid var(--hazard);display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
+  .doc-top-text{min-width:0;}
+  .doc-logo{height:26px;width:auto;flex:none;margin-top:2px;}
   .doc-top .kind{font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#9FB0B7;}
   .doc-top .coname{font-family:'Archivo';font-weight:800;font-size:25px;letter-spacing:-.015em;margin:7px 0 2px;line-height:1.1;word-break:break-word;}
   .doc-top .siteline{font-size:13px;color:#CBD5D9;}
@@ -282,10 +284,15 @@
   <div id="previewCol" data-hide="1">
     <div class="doc-shell">
       <div class="doc" id="doc">
+        <!-- Free plans show the CompliAI logo here. In Pro, #docLogo is
+             swapped for the customer's own uploaded logo (white-label). -->
         <div class="doc-top">
-          <div class="kind">Site-Specific Safety Plan</div>
-          <div class="coname display" id="pCompany">Your company</div>
-          <div class="siteline" id="pSite">Site address will appear here</div>
+          <div class="doc-top-text">
+            <div class="kind">Site-Specific Safety Plan</div>
+            <div class="coname display" id="pCompany">Your company</div>
+            <div class="siteline" id="pSite">Site address will appear here</div>
+          </div>
+          <img class="doc-logo" id="docLogo" src="compliAI-logo-reversed.svg" alt="CompliAI" />
         </div>
         <div class="doc-meta">
           <div class="cell"><div class="k">Project</div><div class="v" id="pProject">—</div></div>

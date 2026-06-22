@@ -199,6 +199,8 @@
   .price ul{list-style:none;padding:0;margin:0 0 20px;}
   .price li{font-size:14px;padding:7px 0;border-top:1px solid var(--line);display:flex;gap:9px;}
   .price li::before{content:"✓";color:var(--brand);font-weight:700;}
+  .price li.no{color:var(--ink-soft);}
+  .price li.no::before{content:"✕";color:var(--ink-soft);font-weight:700;}
   .price .badge{position:absolute;top:-11px;right:18px;background:var(--brand);color:#fff;font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border-radius:99px;}
   .price .cta{width:100%;text-align:center;}
   .price .cta.alt{background:transparent;color:var(--brand-deep);border:1.5px solid var(--line);}
@@ -369,12 +371,14 @@
       <div class="price">
         <div class="tag">Free</div>
         <div class="amt">$0</div>
-        <div class="per">forever</div>
+        <div class="per">forever · no account needed</div>
         <ul>
           <li>Full SSSP builder</li>
           <li>AI hazard &amp; SWMS drafting</li>
-          <li>PDF export</li>
-          <li>Small CompliAI footer</li>
+          <li>PPE list &amp; crew sign-off</li>
+          <li>Branded PDF export</li>
+          <li class="no">Carries a small CompliAI footer</li>
+          <li class="no">No saved profile or logo</li>
         </ul>
         <a class="cta alt" href="sssp-builder.html">Start free</a>
       </div>
