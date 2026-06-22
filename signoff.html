@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>CompliAI — Toolbox talk</title>
+<title>CompliAI — SSSP sign-off</title>
 <link rel="icon" href="favicon.svg?v=2" type="image/svg+xml" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,26 +34,14 @@
   .btn:hover{filter:brightness(1.06);}
   .btn:disabled{opacity:.6;}
   .btn.alt{background:transparent;color:var(--brand-deep);border:1.5px solid var(--line);}
+  .btn.mini{width:auto;padding:8px 13px;font-size:13px;}
   .err{background:var(--hazard-tint);color:#9a3a08;border-radius:10px;padding:12px 14px;font-size:14px;margin-top:12px;}
   .hide{display:none;}
   .ok-screen{text-align:center;padding:30px 10px;}
   .ok-screen .tick{font-size:44px;color:var(--good);}
-  /* signature collection */
-  .sig-list{display:flex;flex-direction:column;gap:8px;}
-  .sig-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#FCFCFB;}
-  .sig-item .nm{font-size:14px;font-weight:600;min-width:0;word-break:break-word;}
-  .sig-item .right{display:flex;align-items:center;gap:8px;flex:none;}
-  .sig-item img{height:32px;width:auto;border:1px solid var(--line);border-radius:6px;background:#fff;}
-  .sig-item .signed{color:var(--good);font-size:13px;font-weight:600;}
-  .btn.mini{width:auto;padding:8px 13px;font-size:13px;}
-  .sig-empty{color:var(--ink-soft);font-size:13px;border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;}
-  /* signature pad modal */
-  .sig-modal{position:fixed;inset:0;background:rgba(26,27,23,.55);z-index:60;display:flex;align-items:center;justify-content:center;padding:18px;}
-  .sig-modal .box{background:#fff;border-radius:14px;padding:18px;width:100%;max-width:440px;}
-  .sig-modal h3{font-family:'Archivo';font-weight:800;font-size:17px;margin:0 0 4px;}
-  .sig-modal .who{color:var(--ink-soft);font-size:13px;margin:0 0 12px;}
-  .sig-canvas{width:100%;height:170px;border:1.5px dashed var(--line);border-radius:10px;background:#fff;touch-action:none;display:block;}
-  .sig-actions{display:flex;gap:8px;margin-top:12px;}
+  .sig-canvas{width:100%;height:180px;border:1.5px dashed var(--line);border-radius:10px;background:#fff;touch-action:none;display:block;}
+  .sig-actions{display:flex;gap:8px;margin-top:10px;}
+  .confirm{font-size:13px;color:var(--ink-soft);line-height:1.45;margin-bottom:14px;}
   @media(max-width:480px){
     .bar{padding:12px 14px;}
     .wrap{padding:18px 14px 80px;}
@@ -65,54 +53,39 @@
 <header>
   <div class="bar">
     <a class="brand" href="app.html"><img class="brand-logo" src="compliAI-logo-reversed.svg" alt="CompliAI" /></a>
-    <a id="backLink" href="app.html">← Back to job</a>
+    <a id="backLink" href="app.html">← Back to the plan</a>
   </div>
 </header>
 <div class="wrap">
   <div id="loading" class="sub">Loading…</div>
   <div id="form" class="hide">
-    <h1>Toolbox talk</h1>
+    <h1>SSSP sign-off</h1>
     <p class="sub" id="jobName">—</p>
     <div class="card">
+      <p class="confirm">By signing below I confirm I have read and understood the Site-Specific Safety Plan for this job, including the hazards and controls, before starting work.</p>
       <div class="row2">
-        <div class="field"><label>Date</label><input type="date" id="date" /></div>
-        <div class="field"><label>Presenter</label><input type="text" id="presenter" placeholder="Who ran it" /></div>
+        <div class="field"><label>Your name</label><input type="text" id="name" placeholder="Full name" /></div>
+        <div class="field"><label>Role / company</label><input type="text" id="role" placeholder="e.g. Roofer — ABC Ltd" /></div>
       </div>
-      <div class="field"><label>Topic</label><input type="text" id="topic" placeholder="e.g. Working at height — edge protection" /></div>
-      <div class="field"><label>Key points discussed</label><textarea id="points" placeholder="What was covered"></textarea></div>
-      <div class="field"><label>Attendees (one name per line)</label><textarea id="attendees" placeholder="Each person on a new line"></textarea></div>
+      <div class="field"><label>Date</label><input type="date" id="date" /></div>
       <div class="field">
-        <label>Collect signatures</label>
-        <button class="btn alt mini" type="button" id="collectBtn">Load names to sign</button>
-        <div id="sigList" class="sig-list" style="margin-top:10px;"></div>
+        <label>Signature</label>
+        <canvas id="sigCanvas" class="sig-canvas"></canvas>
+        <div class="sig-actions"><button class="btn alt mini" type="button" id="sigClear">Clear</button></div>
       </div>
-      <div class="field"><label>Actions / follow-ups</label><textarea id="actions" placeholder="Anything to follow up (optional)"></textarea></div>
-      <button class="btn" id="submitBtn">Save toolbox talk to this job</button>
+      <button class="btn" id="submitBtn">Sign &amp; confirm</button>
       <div id="msg" class="hide"></div>
     </div>
   </div>
   <div id="done" class="hide">
     <div class="card ok-screen">
       <div class="tick">✓</div>
-      <h1>Toolbox talk saved</h1>
+      <h1>Sign-off recorded</h1>
       <p class="sub" id="doneMsg"></p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;">
-        <button class="btn alt" style="width:auto;" id="anotherBtn">Log another</button>
+        <button class="btn alt" style="width:auto;" id="anotherBtn">Sign another</button>
         <a class="btn" style="width:auto;text-decoration:none;display:inline-block;" id="toJob">Back to the plan</a>
       </div>
-    </div>
-  </div>
-</div>
-<!-- signature pad modal (shared) -->
-<div id="sigModal" class="sig-modal hide">
-  <div class="box">
-    <h3>Signature</h3>
-    <p class="who" id="sigWho">—</p>
-    <canvas id="sigCanvas" class="sig-canvas"></canvas>
-    <div class="sig-actions">
-      <button class="btn alt mini" type="button" id="sigClear">Clear</button>
-      <button class="btn alt mini" type="button" id="sigCancel">Cancel</button>
-      <button class="btn mini" type="button" id="sigSave" style="margin-left:auto;">Save signature</button>
     </div>
   </div>
 </div>
@@ -137,6 +110,8 @@ function makeSignaturePad(canvas){
 
 document.getElementById("backLink").href="sssp-builder.html?job="+jobId;
 document.getElementById("toJob").href="sssp-builder.html?job="+jobId;
+
+let sigPad=null;
 async function init(){
   if(!jobId){document.getElementById("loading").textContent="No job specified.";return;}
   const {data:{session}}=await sb.auth.getSession();
@@ -146,59 +121,24 @@ async function init(){
   document.getElementById("jobName").textContent=data.title||"Job";
   document.getElementById("date").value=new Date().toISOString().slice(0,10);
   show("loading",false);show("form",true);
-}
-/* ---- collect signatures flow ---- */
-let sigs={};            // name -> {dataUrl, signedAt}
-let sigNames=[];        // ordered list of names shown
-let sigPad=null, sigActiveName=null;
-function attendeeNames(){return document.getElementById("attendees").value.split("\n").map(s=>s.trim()).filter(Boolean);}
-function renderSigList(){
-  const wrap=document.getElementById("sigList");
-  if(!sigNames.length){wrap.innerHTML='<div class="sig-empty">Enter attendee names above, then tap "Load names to sign".</div>';return;}
-  wrap.innerHTML=sigNames.map((nm,i)=>{
-    const s=sigs[nm];
-    const right=s?`<img src="${s.dataUrl}" alt="signature"/><span class="signed">✓</span><button class="btn alt mini" type="button" data-sign="${i}">Redo</button>`
-                 :`<button class="btn mini" type="button" data-sign="${i}">Sign</button>`;
-    return `<div class="sig-item"><span class="nm"></span><span class="right">${right}</span></div>`;
-  }).join("");
-  // set names safely (avoid HTML injection)
-  wrap.querySelectorAll(".sig-item .nm").forEach((el,i)=>{el.textContent=sigNames[i];});
-  wrap.querySelectorAll("[data-sign]").forEach(b=>b.addEventListener("click",()=>openSig(sigNames[+b.getAttribute("data-sign")])));
-}
-document.getElementById("collectBtn").addEventListener("click",()=>{
-  sigNames=attendeeNames();
-  renderSigList();
-});
-function openSig(name){
-  sigActiveName=name;
-  document.getElementById("sigWho").textContent=name;
-  show("sigModal",true);
-  if(!sigPad)sigPad=makeSignaturePad(document.getElementById("sigCanvas"));
-  sigPad.resize();sigPad.clear();
+  sigPad=makeSignaturePad(document.getElementById("sigCanvas"));
+  sigPad.resize();
 }
 document.getElementById("sigClear").addEventListener("click",()=>sigPad&&sigPad.clear());
-document.getElementById("sigCancel").addEventListener("click",()=>show("sigModal",false));
-document.getElementById("sigSave").addEventListener("click",()=>{
-  if(!sigPad||sigPad.isEmpty()){alert("Please sign first, or tap Cancel.");return;}
-  sigs[sigActiveName]={dataUrl:sigPad.toDataURL(),signedAt:new Date().toISOString()};
-  show("sigModal",false);
-  renderSigList();
-});
-
 document.getElementById("submitBtn").addEventListener("click",async()=>{
-  const topic=document.getElementById("topic").value.trim();
-  const presenter=document.getElementById("presenter").value.trim();
+  const name=document.getElementById("name").value.trim();
+  const role=document.getElementById("role").value.trim();
   const msg=document.getElementById("msg");
-  if(!topic){msg.className="err";msg.textContent="Enter a topic.";show("msg",true);return;}
+  if(!name){msg.className="err";msg.textContent="Enter your name.";show("msg",true);return;}
+  if(!sigPad||sigPad.isEmpty()){msg.className="err";msg.textContent="Please sign in the box above.";show("msg",true);return;}
+  show("msg",false);
   const btn=document.getElementById("submitBtn");btn.disabled=true;btn.textContent="Saving…";
-  const attendees=document.getElementById("attendees").value.split("\n").map(s=>s.trim()).filter(Boolean);
-  const signatures=attendees.filter(nm=>sigs[nm]).map(nm=>({name:nm,dataUrl:sigs[nm].dataUrl,signedAt:sigs[nm].signedAt}));
-  const payload={date:document.getElementById("date").value,topic,presenter,points:document.getElementById("points").value.trim(),attendees,signatures,actions:document.getElementById("actions").value.trim()};
+  const payload={name,role,date:document.getElementById("date").value,signature:sigPad.toDataURL()};
   const {data:{session}}=await sb.auth.getSession();
-  const {error}=await sb.from("records").insert({job_id:jobId,type:"toolbox_talk",payload,created_by:session.user.id});
-  btn.disabled=false;btn.textContent="Save toolbox talk to this job";
+  const {error}=await sb.from("records").insert({job_id:jobId,type:"signoff",payload,created_by:session.user.id});
+  btn.disabled=false;btn.textContent="Sign & confirm";
   if(error){msg.className="err";msg.textContent="Couldn't save: "+error.message;show("msg",true);return;}
-  document.getElementById("doneMsg").textContent=topic+" — "+attendees.length+" attendee(s) — saved.";
+  document.getElementById("doneMsg").textContent=name+" — signed and confirmed.";
   show("form",false);show("done",true);window.scrollTo(0,0);
 });
 document.getElementById("anotherBtn").addEventListener("click",()=>location.reload());

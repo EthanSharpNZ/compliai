@@ -4,6 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="icon" href="favicon.svg?v=2" type="image/svg+xml" />
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#243137" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="CompliAI" />
+<script>if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}</script>
 <title>CompliAI — SSSP Builder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,6 +51,8 @@
   .p-rules-list li{margin:0 0 6px;line-height:1.45;}
   /* digital onsite records stay separate from the printed SSSP */
   @media print{ #dsecChecks,#dsecToolbox,#dsecIncidents{display:none !important;} }
+  /* crew sign-off IS a signed record — it should appear on the printed SSSP */
+  @media print{ #dsecSignoff{display:block !important;break-inside:avoid;} }
   .brand h1{font-family:'Archivo';font-weight:800;font-size:19px;margin:0;letter-spacing:-.01em;line-height:1;}
   .brand .eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#A9B6BC;margin-top:3px;}
   .bar-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;min-width:0;justify-content:flex-end;}
@@ -954,7 +963,7 @@ renderPreview();
     var bar=document.querySelector(".bar-actions");
     if(!bar||document.getElementById("recLinks"))return;
     var span=document.createElement("span"); span.id="recLinks"; span.style.cssText="display:inline-flex;gap:12px;align-items:center;";
-    [["check.html","✓ Daily check"],["toolbox.html","☷ Toolbox"],["incident.html","⚠ Incident"]].forEach(function(x){
+    [["check.html","✓ Daily check"],["toolbox.html","☷ Toolbox"],["incident.html","⚠ Incident"],["signoff.html","✍ Sign-off"]].forEach(function(x){
       var a=document.createElement("a"); a.href=x[0]+"?job="+jobId; a.textContent=x[1];
       a.style.cssText="color:#C3CDD2;text-decoration:none;font-size:12.5px;white-space:nowrap;"; span.appendChild(a);
     });
@@ -983,12 +992,15 @@ renderPreview();
     var checks=rows.filter(function(x){return x.type==="prestart_check";});
     var talks=rows.filter(function(x){return x.type==="toolbox_talk";});
     var incs=rows.filter(function(x){return x.type==="incident";});
+    var signoffs=rows.filter(function(x){return x.type==="signoff";});
     fillSec("dsecChecks","Daily pre-start checks","<th>Date</th><th>Plant</th><th>Operator</th><th>Result</th><th>Defects</th>",
       checks.length?checks.map(function(row){var p=row.payload||{};return '<tr><td>'+esc(p.date||"—")+'</td><td>'+esc(p.item||"—")+'</td><td>'+esc(p.operator||"—")+'</td><td>'+esc(p.result||"—")+'</td><td>'+esc(p.defects||"—")+'</td></tr>';}).join(""):"");
     fillSec("dsecToolbox","Toolbox talks","<th>Date</th><th>Topic</th><th>Presenter</th><th>Attendees</th>",
       talks.length?talks.map(function(row){var p=row.payload||{};var att=(p.attendees||[]).join(", ");return '<tr><td>'+esc(p.date||"—")+'</td><td>'+esc(p.topic||"—")+'</td><td>'+esc(p.presenter||"—")+'</td><td>'+esc(att||"—")+'</td></tr>';}).join(""):"");
     fillSec("dsecIncidents","Incident &amp; near-miss reports","<th>When</th><th>Type</th><th>Location</th><th>What happened</th><th>Notifiable</th>",
       incs.length?incs.map(function(row){var p=row.payload||{};var w=(p.datetime||"").replace("T"," ");return '<tr><td>'+esc(w||"—")+'</td><td>'+esc(p.type||"—")+'</td><td>'+esc(p.location||"—")+'</td><td>'+esc(p.description||"—")+'</td><td>'+esc(p.notifiable||"—")+'</td></tr>';}).join(""):"");
+    fillSec("dsecSignoff","Plan sign-off","<th>Name</th><th>Role</th><th>Date</th><th>Signature</th>",
+      signoffs.length?signoffs.map(function(row){var p=row.payload||{};var img=p.signature?'<img src="'+esc(p.signature)+'" height="40" alt="signature"/>':"—";return '<tr><td>'+esc(p.name||"—")+'</td><td>'+esc(p.role||"—")+'</td><td>'+esc(p.date||"—")+'</td><td>'+img+'</td></tr>';}).join(""):"");
   }
   /* ---- saved-contacts picker for the main contractor ---- */
   var jobOrgId=null, contactPickEl=null, contactMsgEl=null;
@@ -1102,6 +1114,31 @@ renderPreview();
     if(span){ span.appendChild(btn); } else { bar.insertBefore(btn,bar.firstChild); }
   }
 
+  /* ---- prefill empty builder fields from the org's company settings ---- */
+  async function applyOrgDefaults(){
+    if(!jobOrgId) return;
+    var r=await sb.from("organisations").select("name,company_address,company_phone,prepared_by,logo_url").eq("id",jobOrgId).single();
+    if(r.error||!r.data) return;
+    var org=r.data, changed=false;
+    function prefill(path,val){
+      if(!val) return;
+      var cur=getDeep(path);
+      if(cur && String(cur).trim()) return;   // never overwrite existing values
+      setDeep(path,val);
+      var el=document.querySelector('[data-k="'+path+'"]');
+      if(el) el.value=val;
+      changed=true;
+    }
+    prefill("site.company",org.name);
+    prefill("site.preparedBy",org.prepared_by);
+    // leave site.address alone — that's the site address, not the company address
+    if(org.logo_url){
+      var lg=document.getElementById("docLogo");
+      if(lg){ lg.src=org.logo_url; lg.style.display=""; }
+    }
+    if(changed){ renderPreview(); scheduleSave(); }
+  }
+
   async function start(){
     sb=supabase.createClient(SB_URL,SB_KEY);
     setStatus("Loading…");
@@ -1112,6 +1149,7 @@ renderPreview();
     jobOrgId=res.data.org_id||null;
     if(res.data.plan && Object.keys(res.data.plan).length){ try{ hydrate(res.data.plan); }catch(e){} }
     loading=false;
+    await applyOrgDefaults();
     setStatus("Saved ✓");
     injectJobLinks();
     injectContactPicker();
