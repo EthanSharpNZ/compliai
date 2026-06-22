@@ -29,16 +29,21 @@
   .bar-actions a:hover{color:#fff;}
   .wrap{max-width:1000px;margin:0 auto;padding:34px 22px 90px;}
   h1{font-family:'Archivo';font-weight:800;font-size:26px;letter-spacing:-.01em;margin:0 0 6px;}
+  h2{font-family:'Archivo';font-weight:700;font-size:20px;letter-spacing:-.01em;margin:0 0 4px;}
   .lede{color:var(--ink-soft);margin:0 0 26px;}
   .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;}
+  .card+.card{margin-top:22px;}
+  .section{margin-top:34px;}
   .field label{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;}
-  input[type=text],input[type=email]{width:100%;font-family:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);}
-  input:focus{outline:2px solid var(--brand);border-color:var(--brand);}
+  input[type=text],input[type=email],input[type=tel],select{width:100%;font-family:inherit;font-size:15px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);}
+  input:focus,select:focus{outline:2px solid var(--brand);border-color:var(--brand);}
+  select.mini{width:auto;font-size:12.5px;padding:5px 8px;}
   .btn{font-family:'Archivo';font-weight:700;font-size:14px;background:var(--brand);color:#fff;border:none;border-radius:9px;padding:11px 18px;cursor:pointer;}
   .btn:hover{filter:brightness(1.06);}
   .btn:disabled{opacity:.6;cursor:default;}
   .btn.alt{background:transparent;color:var(--brand-deep);border:1.5px solid var(--line);}
   .btn.small{font-size:12.5px;padding:7px 12px;}
+  .btn.danger{color:#9a3a08;border-color:#F0D3C2;}
   .muted{color:var(--ink-soft);font-size:13px;}
   .jobgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:18px;}
   .job{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:6px;}
@@ -50,6 +55,18 @@
   .err{background:#FBEDE3;color:#9a3a08;border-radius:9px;padding:11px 13px;font-size:13px;margin-top:12px;}
   .hide{display:none;}
   .center{max-width:430px;margin:40px auto;}
+  .pill{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.03em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--brand-tint);color:var(--brand-deep);border:1px solid var(--line);}
+  .pill.owner{background:#FBEDE3;color:#9a3a08;border-color:#F0D3C2;}
+  .pill.manager{background:#E6F2F0;color:var(--brand-deep);}
+  .pill.staff{background:#EEF0EC;color:var(--ink-soft);}
+  .list{margin-top:14px;border-top:1px solid var(--line);}
+  .row-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .row-item .grow{flex:1;min-width:160px;}
+  .row-item .name{font-weight:600;font-size:14.5px;}
+  .row-item .sub{font-size:12.5px;color:var(--ink-soft);}
+  .row-actions{display:flex;align-items:center;gap:8px;}
+  .formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px;}
+  .seatline{font-size:13px;color:var(--ink-soft);margin:0 0 4px;}
 </style>
 </head>
 <body>
@@ -58,6 +75,7 @@
     <a class="brand" href="/"><img class="brand-logo" src="compliAI-logo-reversed.svg" alt="CompliAI" /></a>
     <div class="bar-actions">
       <a href="sssp-builder.html">New SSSP</a>
+      <span id="orgInfo" class="hide"></span>
       <span id="userEmail"></span>
       <a href="#" id="signOut" class="hide">Sign out</a>
     </div>
@@ -85,9 +103,9 @@
   <!-- LOGGED IN -->
   <div id="appView" class="hide">
     <h1>My jobs</h1>
-    <p class="lede">Each job keeps its SSSP and onsite records together. Free plan: up to 3 active jobs.</p>
+    <p class="lede" id="jobsLede">Each job keeps its SSSP and onsite records together.</p>
 
-    <div class="card">
+    <div id="createJobCard" class="card hide">
       <div class="field">
         <label>Start a new job</label>
         <input type="text" id="newTitle" placeholder="e.g. Reroof — 14 Pohutukawa Ave" />
@@ -99,6 +117,66 @@
 
     <div id="jobs" class="jobgrid"></div>
     <div id="emptyJobs" class="muted hide" style="margin-top:18px;">No saved jobs yet — create one above, or start a quick one-off from <a href="sssp-builder.html">New SSSP</a>.</div>
+
+    <!-- TEAM -->
+    <div id="teamSection" class="section hide">
+      <div class="card">
+        <h2>Your team</h2>
+        <p class="seatline" id="seatLine"></p>
+        <div id="teamErr" class="err hide"></div>
+
+        <div id="membersList" class="list"></div>
+        <div id="invitesList"></div>
+
+        <div id="inviteForm" style="margin-top:18px;border-top:1px solid var(--line);padding-top:18px;">
+          <h2 style="font-size:16px;">Invite teammate</h2>
+          <div class="formgrid">
+            <div class="field">
+              <label>Email</label>
+              <input type="email" id="inviteEmail" placeholder="teammate@company.co.nz" />
+            </div>
+            <div class="field">
+              <label>Role</label>
+              <select id="inviteRole">
+                <option value="staff">Staff — onsite only</option>
+                <option value="manager">Manager — build jobs & manage team</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:14px;"><button class="btn" id="sendInvite">Invite teammate</button></div>
+          <div id="inviteMsg" class="note hide"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACTS -->
+    <div id="contactsSection" class="section hide">
+      <div class="card">
+        <h2>Saved contacts</h2>
+        <p class="muted" style="margin:0 0 4px;">Your main-contractor and crew address book — reused across jobs.</p>
+        <div id="contactsErr" class="err hide"></div>
+
+        <div id="contactsList" class="list"></div>
+
+        <div style="margin-top:18px;border-top:1px solid var(--line);padding-top:18px;">
+          <h2 style="font-size:16px;">Add a contact</h2>
+          <div class="formgrid">
+            <div class="field"><label>Name</label><input type="text" id="cName" placeholder="Jane Builder" /></div>
+            <div class="field"><label>Company</label><input type="text" id="cCompany" placeholder="Acme Construction" /></div>
+            <div class="field"><label>Email</label><input type="email" id="cEmail" placeholder="jane@acme.co.nz" /></div>
+            <div class="field"><label>Phone</label><input type="tel" id="cPhone" placeholder="021 123 4567" /></div>
+            <div class="field"><label>Kind</label>
+              <select id="cKind">
+                <option value="contractor">Contractor</option>
+                <option value="crew">Crew</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:14px;"><button class="btn" id="addContact">Add contact</button></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -108,15 +186,19 @@ const SUPABASE_URL="https://qewsprapekvvtlsbyaed.supabase.co";
 const SUPABASE_ANON_KEY="sb_publishable_otdr8vJvfweQ8yjlYD8rvg_LS1EvYqT";
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const FREE_CAP=3;
+const SEAT_LIMITS={free:1,crew:4,company:16,enterprise:999};
 function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 function show(id,on){document.getElementById(id).classList.toggle("hide",!on);}
+
+let currentUser=null;       // {id,email}
+let currentOrg=null;        // {id, role, plan, name}
 
 async function init(){
   const {data:{session}}=await sb.auth.getSession();
   if(session){enterApp(session.user);}else{show("authView",true);}
 }
 
-/* ---- auth (magic link) ---- */
+/* ---- auth (magic link) — UNCHANGED ---- */
 function authMsg(t){const m=document.getElementById("authMsg");m.textContent=t;m.classList.remove("hide");}
 document.getElementById("magicBtn").addEventListener("click",async()=>{
   const email=document.getElementById("email").value.trim();
@@ -130,11 +212,93 @@ document.getElementById("magicBtn").addEventListener("click",async()=>{
 sb.auth.onAuthStateChange((event,session)=>{if(session&&document.getElementById("appView").classList.contains("hide")){enterApp(session.user);}});
 document.getElementById("signOut").addEventListener("click",async(e)=>{e.preventDefault();await sb.auth.signOut();location.reload();});
 
-function enterApp(user){
+/* ---- app entry ---- */
+async function enterApp(user){
+  currentUser=user;
   show("authView",false);show("appView",true);
   document.getElementById("userEmail").textContent=user.email;
   show("signOut",true);
-  loadJobs();
+
+  const ok=await ensureOrg();
+  if(!ok)return; // ensureOrg surfaced an error already
+
+  // header org info
+  const oi=document.getElementById("orgInfo");
+  oi.textContent=currentOrg.name+" · "+currentOrg.plan;
+  show("orgInfo",true);
+
+  applyRoleUI();
+  await loadJobs();
+  if(currentOrg.role==="owner"||currentOrg.role==="manager"){
+    await loadTeam();
+  }
+  await loadContacts();
+}
+
+/* ---- org bootstrap ---- */
+async function ensureOrg(){
+  const uid=currentUser.id;
+  const email=currentUser.email||"";
+  try{
+    // 1) existing membership?
+    let {data:mems,error:mErr}=await sb.from("org_members").select("org_id,role").eq("user_id",uid);
+    if(mErr)throw mErr;
+    if(mems&&mems.length){
+      const m=mems[0];
+      const org=await fetchOrg(m.org_id);
+      currentOrg={id:m.org_id,role:m.role,plan:org.plan||"free",name:org.name||"My company"};
+      return true;
+    }
+
+    // 2) unaccepted invite for this email?
+    let {data:invs,error:iErr}=await sb.from("org_invites")
+      .select("id,org_id,role,email,accepted")
+      .eq("accepted",false)
+      .ilike("email",email);
+    if(iErr)throw iErr;
+    if(invs&&invs.length){
+      const inv=invs[0];
+      const {error:insErr}=await sb.from("org_members").insert({org_id:inv.org_id,user_id:uid,email,role:inv.role});
+      if(insErr)throw insErr;
+      const {error:updErr}=await sb.from("org_invites").update({accepted:true}).eq("id",inv.id);
+      if(updErr)throw updErr;
+      const org=await fetchOrg(inv.org_id);
+      currentOrg={id:inv.org_id,role:inv.role,plan:org.plan||"free",name:org.name||"My company"};
+      return true;
+    }
+
+    // 3) create a brand new org + owner membership
+    const {data:newOrg,error:oErr}=await sb.from("organisations")
+      .insert({name:"My company"})
+      .select("id,name,plan").single();
+    if(oErr)throw oErr;
+    const {error:omErr}=await sb.from("org_members").insert({org_id:newOrg.id,user_id:uid,email,role:"owner"});
+    if(omErr)throw omErr;
+    currentOrg={id:newOrg.id,role:"owner",plan:newOrg.plan||"free",name:newOrg.name||"My company"};
+    return true;
+  }catch(e){
+    showErr("Couldn't set up your organisation: "+(e.message||e));
+    return false;
+  }
+}
+async function fetchOrg(orgId){
+  const {data,error}=await sb.from("organisations").select("id,name,plan").eq("id",orgId).single();
+  if(error)throw error;
+  return data;
+}
+
+/* ---- role-based UI toggles ---- */
+function applyRoleUI(){
+  const canBuild=currentOrg.role==="owner"||currentOrg.role==="manager";
+  show("createJobCard",canBuild);
+  show("teamSection",canBuild);
+  show("contactsSection",true); // all members
+  const lede=document.getElementById("jobsLede");
+  if(currentOrg.plan==="free"){
+    lede.textContent="Each job keeps its SSSP and onsite records together. Free plan: up to 3 active jobs.";
+  }else{
+    lede.textContent="Each job keeps its SSSP and onsite records together.";
+  }
 }
 
 /* ---- jobs ---- */
@@ -143,19 +307,26 @@ async function loadJobs(){
   const {data,error}=await sb.from("jobs").select("id,title,site_address,status,updated_at").order("updated_at",{ascending:false});
   if(error){showErr(error.message);return;}
   const active=data.filter(j=>j.status==="active");
-  document.getElementById("capNote").textContent=active.length+" of "+FREE_CAP+" active jobs used"+(active.length>=FREE_CAP?" — archive one to add another, or upgrade.":".");
+  const capNote=document.getElementById("capNote");
+  if(currentOrg.plan==="free"){
+    capNote.textContent=active.length+" of "+FREE_CAP+" active jobs used"+(active.length>=FREE_CAP?" — archive one to add another, or upgrade.":".");
+  }else{
+    capNote.textContent="Unlimited active jobs.";
+  }
   show("emptyJobs",data.length===0);
   wrap.innerHTML=data.map(jobCard).join("");
 }
 function jobCard(j){
   const when=j.updated_at?new Date(j.updated_at).toLocaleDateString("en-NZ",{day:"2-digit",month:"short"}):"";
-  return `<div class="job"><h3>${esc(j.title)}</h3><div class="meta">${esc(j.site_address)||"No site address yet"}</div><div class="meta">${j.status==="archived"?"Archived":"Active"} · updated ${when}</div><div class="row"><a class="btn small" href="sssp-builder.html?job=${j.id}">Open</a><button class="btn small alt" onclick="toggleArchive('${j.id}','${j.status}')">${j.status==="archived"?"Reactivate":"Archive"}</button></div></div>`;
+  const canBuild=currentOrg&&(currentOrg.role==="owner"||currentOrg.role==="manager");
+  const archiveBtn=canBuild?`<button class="btn small alt" onclick="toggleArchive('${j.id}','${j.status}')">${j.status==="archived"?"Reactivate":"Archive"}</button>`:"";
+  return `<div class="job"><h3>${esc(j.title)}</h3><div class="meta">${esc(j.site_address)||"No site address yet"}</div><div class="meta">${j.status==="archived"?"Archived":"Active"} · updated ${when}</div><div class="row"><a class="btn small" href="sssp-builder.html?job=${j.id}">Open</a>${archiveBtn}</div></div>`;
 }
 document.getElementById("createJob").addEventListener("click",async()=>{
   const title=document.getElementById("newTitle").value.trim()||"Untitled job";
-  const {data:{session}}=await sb.auth.getSession();
-  const {data,error}=await sb.from("jobs").insert({owner_id:session.user.id,title}).select("id").single();
-  if(error){showErr(error.message);return;}
+  const {data,error}=await sb.from("jobs").insert({owner_id:currentUser.id,org_id:currentOrg.id,title}).select("id").single();
+  if(error){showErr(error.message||error);return;}
+  // mirror original behaviour: jump straight into the new job's SSSP builder
   location.href="sssp-builder.html?job="+data.id;
 });
 async function toggleArchive(id,status){
@@ -165,6 +336,153 @@ async function toggleArchive(id,status){
   loadJobs();
 }
 function showErr(m){const e=document.getElementById("appErr");e.textContent=m;e.classList.remove("hide");}
+
+/* ---- team ---- */
+function teamErr(m){const e=document.getElementById("teamErr");e.textContent=m;e.classList.remove("hide");}
+function roleBadge(role){return `<span class="pill ${role}">${esc(role)}</span>`;}
+
+async function loadTeam(){
+  document.getElementById("teamErr").classList.add("hide");
+  // members
+  const {data:members,error:mErr}=await sb.from("org_members")
+    .select("user_id,email,role,created_at").eq("org_id",currentOrg.id).order("created_at",{ascending:true});
+  if(mErr){teamErr(mErr.message);return;}
+  // pending invites
+  const {data:invites,error:iErr}=await sb.from("org_invites")
+    .select("id,email,role,accepted,created_at").eq("org_id",currentOrg.id).eq("accepted",false).order("created_at",{ascending:true});
+  if(iErr){teamErr(iErr.message);return;}
+
+  const limit=SEAT_LIMITS[currentOrg.plan]||1;
+  const used=(members?members.length:0)+(invites?invites.length:0);
+  document.getElementById("seatLine").textContent=used+" of "+limit+" users (active + pending).";
+
+  // render members
+  document.getElementById("membersList").innerHTML=(members||[]).map(m=>memberRow(m)).join("")
+    || `<div class="row-item"><div class="grow muted">No teammates yet.</div></div>`;
+
+  // render invites
+  const inv=document.getElementById("invitesList");
+  if(invites&&invites.length){
+    inv.innerHTML=`<div style="margin-top:16px;"><h2 style="font-size:15px;">Pending invites</h2><div class="list">`
+      +invites.map(i=>inviteRow(i)).join("")+`</div></div>`;
+  }else{
+    inv.innerHTML="";
+  }
+
+  // disable invite form if at seat limit
+  const atLimit=used>=limit;
+  const sendBtn=document.getElementById("sendInvite");
+  sendBtn.disabled=atLimit;
+  const im=document.getElementById("inviteMsg");
+  if(atLimit){
+    im.textContent="You've reached the "+limit+"-user limit on the "+currentOrg.plan+" plan. Upgrade to invite more of your crew.";
+    im.classList.remove("hide");
+  }else{
+    im.classList.add("hide");
+  }
+}
+
+function memberRow(m){
+  const isOwner=m.role==="owner";
+  const isSelf=m.user_id===currentUser.id;
+  let controls="";
+  // Owner can change manager<->staff for non-owner members and remove them.
+  // Manager can manage staff (change/remove staff), but not owners or other managers.
+  const canManage = currentOrg.role==="owner"
+    ? !isOwner
+    : (currentOrg.role==="manager" && m.role==="staff" && !isSelf);
+
+  // role dropdown: owner only, for non-owner members
+  if(currentOrg.role==="owner" && !isOwner){
+    controls+=`<select class="mini" onchange="changeRole('${m.user_id}',this.value)">
+      <option value="manager"${m.role==="manager"?" selected":""}>manager</option>
+      <option value="staff"${m.role==="staff"?" selected":""}>staff</option>
+    </select>`;
+  }
+  if(canManage && !isSelf){
+    controls+=`<button class="btn small alt danger" onclick="removeMember('${m.user_id}','${esc(m.email)}')">Remove</button>`;
+  }
+  return `<div class="row-item">
+    <div class="grow"><span class="name">${esc(m.email)}</span>${isSelf?' <span class="muted">(you)</span>':''}</div>
+    <div class="row-actions">${roleBadge(m.role)}${controls}</div>
+  </div>`;
+}
+
+function inviteRow(i){
+  const canCancel=currentOrg.role==="owner"||(currentOrg.role==="manager"&&i.role==="staff");
+  const cancel=canCancel?`<button class="btn small alt danger" onclick="cancelInvite('${i.id}')">Cancel</button>`:"";
+  return `<div class="row-item">
+    <div class="grow"><span class="name">${esc(i.email)}</span> <span class="muted">invited · pending</span></div>
+    <div class="row-actions">${roleBadge(i.role)}${cancel}</div>
+  </div>`;
+}
+
+async function changeRole(userId,role){
+  const {error}=await sb.from("org_members").update({role}).eq("org_id",currentOrg.id).eq("user_id",userId);
+  if(error){teamErr(error.message);return;}
+  await loadTeam();
+}
+async function removeMember(userId,email){
+  if(!confirm("Remove "+email+" from the team?"))return;
+  const {error}=await sb.from("org_members").delete().eq("org_id",currentOrg.id).eq("user_id",userId);
+  if(error){teamErr(error.message);return;}
+  await loadTeam();
+}
+async function cancelInvite(id){
+  const {error}=await sb.from("org_invites").delete().eq("id",id);
+  if(error){teamErr(error.message);return;}
+  await loadTeam();
+}
+
+document.getElementById("sendInvite").addEventListener("click",async()=>{
+  const email=document.getElementById("inviteEmail").value.trim();
+  const role=document.getElementById("inviteRole").value;
+  const im=document.getElementById("inviteMsg");
+  if(!email){im.textContent="Enter an email address to invite.";im.classList.remove("hide");return;}
+  const {error}=await sb.from("org_invites").insert({org_id:currentOrg.id,email,role,invited_by:currentUser.id});
+  if(error){teamErr(error.message);return;}
+  document.getElementById("inviteEmail").value="";
+  im.textContent="Invite created. They'll join automatically when they sign in with that email at compliai.co.nz/app.html.";
+  im.classList.remove("hide");
+  await loadTeam();
+});
+
+/* ---- contacts ---- */
+function contactsErr(m){const e=document.getElementById("contactsErr");e.textContent=m;e.classList.remove("hide");}
+async function loadContacts(){
+  document.getElementById("contactsErr").classList.add("hide");
+  const {data,error}=await sb.from("contacts")
+    .select("id,name,company,email,phone,kind,created_at").eq("org_id",currentOrg.id).order("created_at",{ascending:false});
+  if(error){contactsErr(error.message);return;}
+  const list=document.getElementById("contactsList");
+  list.innerHTML=(data&&data.length)?data.map(contactRow).join("")
+    :`<div class="row-item"><div class="grow muted">No contacts yet — add your main contractor or crew below.</div></div>`;
+}
+function contactRow(c){
+  const sub=[c.company,c.email,c.phone].filter(Boolean).map(esc).join(" · ");
+  return `<div class="row-item">
+    <div class="grow"><span class="name">${esc(c.name)||"Unnamed"}</span><div class="sub">${sub||"No details"}</div></div>
+    <div class="row-actions"><span class="pill">${esc(c.kind)}</span><button class="btn small alt danger" onclick="deleteContact('${c.id}')">Delete</button></div>
+  </div>`;
+}
+document.getElementById("addContact").addEventListener("click",async()=>{
+  const name=document.getElementById("cName").value.trim();
+  const company=document.getElementById("cCompany").value.trim();
+  const email=document.getElementById("cEmail").value.trim();
+  const phone=document.getElementById("cPhone").value.trim();
+  const kind=document.getElementById("cKind").value;
+  if(!name&&!company&&!email&&!phone){contactsErr("Add at least a name or some details.");return;}
+  const {error}=await sb.from("contacts").insert({org_id:currentOrg.id,name,company,email,phone,kind});
+  if(error){contactsErr(error.message);return;}
+  ["cName","cCompany","cEmail","cPhone"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("cKind").value="contractor";
+  await loadContacts();
+});
+async function deleteContact(id){
+  const {error}=await sb.from("contacts").delete().eq("id",id);
+  if(error){contactsErr(error.message);return;}
+  await loadContacts();
+}
 
 init();
 </script>

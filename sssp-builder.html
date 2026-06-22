@@ -937,17 +937,132 @@ renderPreview();
     fillSec("dsecIncidents","Incident &amp; near-miss reports","<th>When</th><th>Type</th><th>Location</th><th>What happened</th><th>Notifiable</th>",
       incs.length?incs.map(function(row){var p=row.payload||{};var w=(p.datetime||"").replace("T"," ");return '<tr><td>'+esc(w||"—")+'</td><td>'+esc(p.type||"—")+'</td><td>'+esc(p.location||"—")+'</td><td>'+esc(p.description||"—")+'</td><td>'+esc(p.notifiable||"—")+'</td></tr>';}).join(""):"");
   }
+  /* ---- saved-contacts picker for the main contractor ---- */
+  var jobOrgId=null, contactPickEl=null, contactMsgEl=null;
+  function setContactMsg(t,ok){
+    if(!contactMsgEl)return;
+    contactMsgEl.textContent=t||"";
+    contactMsgEl.style.color = ok===false ? "var(--hazard)" : "var(--ink-soft)";
+  }
+  function setSiteField(key,val){
+    var path="site."+key;
+    setDeep(path,val);
+    var el=document.querySelector('[data-k="'+path+'"]');
+    if(el) el.value=val;
+  }
+  async function loadContactsInto(sel){
+    if(!sel)return;
+    var r=await sb.from("contacts").select("id,name,company,email,phone").order("name");
+    if(r.error){ setContactMsg("Couldn't load contacts",false); return; }
+    var rows=r.data||[];
+    contactPickEl._rows=rows;
+    sel.innerHTML='<option value="">Choose from saved contacts…</option>'+
+      rows.map(function(c){
+        var lbl=(c.name||"(no name)")+(c.company?" — "+c.company:"");
+        return '<option value="'+esc(c.id)+'">'+esc(lbl)+'</option>';
+      }).join("");
+  }
+  function injectContactPicker(){
+    var input=document.querySelector('[data-k="site.principalContact"]');
+    if(!input||document.getElementById("contactPickWrap"))return;
+    var field=input.closest(".field")||input.parentNode;
+    var wrap=document.createElement("div");
+    wrap.id="contactPickWrap";
+    wrap.style.cssText="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;";
+
+    var sel=document.createElement("select");
+    sel.id="contactPick";
+    sel.style.cssText="font-family:'IBM Plex Sans';font-size:13.5px;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff;flex:1;min-width:180px;";
+    contactPickEl=sel;
+
+    var saveBtn=document.createElement("button");
+    saveBtn.type="button"; saveBtn.id="contactSaveBtn"; saveBtn.className="btn-ai";
+    saveBtn.style.cssText="padding:9px 13px;font-size:12.5px;";
+    saveBtn.innerHTML='<span class="spark">＋</span> Save to contacts';
+
+    var msg=document.createElement("div");
+    msg.id="contactPickMsg";
+    msg.style.cssText="flex-basis:100%;font-size:11.5px;color:var(--ink-soft);min-height:1px;";
+    contactMsgEl=msg;
+
+    sel.addEventListener("change",function(){
+      var rows=contactPickEl._rows||[];
+      var c=rows.filter(function(x){return String(x.id)===String(sel.value);})[0];
+      if(!c)return;
+      setSiteField("principalContact",c.name||"");
+      setSiteField("principalEmail",c.email||"");
+      setSiteField("principalPhone",c.phone||"");
+      renderPreview();
+      scheduleSave();
+      setContactMsg("Filled from "+(c.name||"contact"));
+    });
+
+    saveBtn.addEventListener("click",async function(){
+      var name=(state.site.principalContact||"").trim();
+      var email=(state.site.principalEmail||"").trim();
+      var phone=(state.site.principalPhone||"").trim();
+      if(!name&&!email&&!phone){ setContactMsg("Add a contact name, email or phone first.",false); return; }
+      if(!jobOrgId){ setContactMsg("Couldn't determine your organisation.",false); return; }
+      saveBtn.disabled=true; setContactMsg("Saving contact…");
+      var r=await sb.from("contacts").insert({ org_id:jobOrgId, name:name, company:(state.site.principal||"").trim()||null, email:email||null, phone:phone||null, kind:"contractor" });
+      saveBtn.disabled=false;
+      if(r.error){ setContactMsg(r.error.message||"Couldn't save contact",false); return; }
+      setContactMsg("Saved to contacts ✓");
+      await loadContactsInto(sel);
+    });
+
+    wrap.appendChild(sel); wrap.appendChild(saveBtn); wrap.appendChild(msg);
+    field.appendChild(wrap);
+    loadContactsInto(sel);
+  }
+
+  /* ---- email this report to the main-contractor contact ---- */
+  function injectEmailReport(){
+    var span=document.getElementById("recLinks");
+    var bar=document.querySelector(".bar-actions");
+    if(!bar||document.getElementById("emailReportBtn"))return;
+    var btn=document.createElement("button");
+    btn.type="button"; btn.id="emailReportBtn"; btn.className="btn-ai";
+    btn.style.cssText="padding:8px 13px;font-size:12.5px;";
+    btn.innerHTML='<span class="spark">✉</span> Email report to contact';
+    btn.addEventListener("click",async function(){
+      var to=(state.site.principalEmail||"").trim();
+      if(!to){ setStatus("Add a main-contractor email first"); return; }
+      btn.disabled=true; setStatus("Emailing report…");
+      try{
+        var sess=await sb.auth.getSession();
+        var token=sess&&sess.data&&sess.data.session?sess.data.session.access_token:null;
+        if(!token){ setStatus("Not signed in"); btn.disabled=false; return; }
+        var resp=await fetch(SB_URL+"/functions/v1/send-report",{
+          method:"POST",
+          headers:{ "Authorization":"Bearer "+token, "Content-Type":"application/json" },
+          body:JSON.stringify({ jobId:jobId, include:"all" })
+        });
+        var out={}; try{ out=await resp.json(); }catch(e){}
+        if(resp.ok){ setStatus("Report emailed to "+to); }
+        else{ setStatus("Email failed: "+(out.error||out.message||resp.statusText)); }
+      }catch(e){
+        setStatus("Email failed: "+(e&&e.message?e.message:"error"));
+      }
+      btn.disabled=false;
+    });
+    if(span){ span.appendChild(btn); } else { bar.insertBefore(btn,bar.firstChild); }
+  }
+
   async function start(){
     sb=supabase.createClient(SB_URL,SB_KEY);
     setStatus("Loading…");
     var sess=await sb.auth.getSession();
     if(!sess.data.session){ location.href="app.html"; return; }
-    var res=await sb.from("jobs").select("plan,title").eq("id",jobId).single();
+    var res=await sb.from("jobs").select("plan,title,org_id").eq("id",jobId).single();
     if(res.error||!res.data){ setStatus("Couldn't open this job"); loading=false; return; }
+    jobOrgId=res.data.org_id||null;
     if(res.data.plan && Object.keys(res.data.plan).length){ try{ hydrate(res.data.plan); }catch(e){} }
     loading=false;
     setStatus("Saved ✓");
     injectJobLinks();
+    injectContactPicker();
+    injectEmailReport();
     loadRecords();
     var orig=renderPreview;
     renderPreview=function(){ orig(); scheduleSave(); };
