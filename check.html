@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>CompliAI — Daily plant pre-start check</title>
+<link rel="icon" href="favicon.svg?v=2" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#F3F3EF;--surface:#FFFFFF;--ink:#1A1B17;--ink-soft:#62655C;--line:#E3E3DB;--hazard:#E2540B;--hazard-tint:#FBEDE3;--steel:#243137;--brand:#0F766E;--brand-deep:#0B5A54;--brand-tint:#E6F2F0;--good:#2F6B4F;--good-tint:#E7F1EC;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .display{font-family:'Archivo',sans-serif;}
+  header{position:sticky;top:0;z-index:40;background:var(--steel);color:#fff;border-bottom:3px solid var(--brand);}
+  .bar{max-width:640px;margin:0 auto;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
+  .brand-logo{height:26px;width:auto;display:block;}
+  .bar a{color:#C3CDD2;text-decoration:none;font-size:13px;}
+  .wrap{max-width:640px;margin:0 auto;padding:22px 18px 90px;}
+  h1{font-family:'Archivo';font-weight:800;font-size:22px;margin:0 0 4px;}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 20px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;}
+  label{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px;}
+  input,select,textarea{width:100%;font-family:inherit;font-size:16px;padding:12px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);border-color:var(--brand);}
+  textarea{min-height:70px;resize:vertical;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .field{margin-bottom:14px;}
+  .chk{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line);}
+  .chk:first-child{border-top:none;}
+  .chk .lbl{font-size:14.5px;flex:1;}
+  .seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;flex:none;}
+  .seg button{font-family:inherit;font-size:13px;font-weight:600;border:none;background:#fff;color:var(--ink-soft);padding:8px 14px;cursor:pointer;}
+  .seg button.ok.on{background:var(--good-tint);color:var(--good);}
+  .seg button.no.on{background:var(--hazard-tint);color:var(--hazard);}
+  .btn{font-family:'Archivo';font-weight:700;font-size:15px;background:var(--brand);color:#fff;border:none;border-radius:10px;padding:14px 18px;cursor:pointer;width:100%;}
+  .btn:hover{filter:brightness(1.06);}
+  .btn:disabled{opacity:.6;}
+  .btn.alt{background:transparent;color:var(--brand-deep);border:1.5px solid var(--line);}
+  .note{background:var(--brand-tint);color:var(--brand-deep);border-radius:10px;padding:12px 14px;font-size:14px;margin-top:12px;}
+  .err{background:var(--hazard-tint);color:#9a3a08;border-radius:10px;padding:12px 14px;font-size:14px;margin-top:12px;}
+  .hide{display:none;}
+  .ok-screen{text-align:center;padding:30px 10px;}
+  .ok-screen .tick{font-size:44px;color:var(--good);}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <a class="brand" href="app.html"><img class="brand-logo" src="compliAI-logo-reversed.svg" alt="CompliAI" /></a>
+    <a id="backLink" href="app.html">← Back to job</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="loading" class="sub">Loading…</div>
+
+  <div id="form" class="hide">
+    <h1>Daily plant pre-start check</h1>
+    <p class="sub" id="jobName">—</p>
+
+    <div class="card">
+      <div class="row2">
+        <div class="field"><label>Plant / equipment</label><select id="item"></select></div>
+        <div class="field"><label>Date</label><input type="date" id="date" /></div>
+      </div>
+      <div class="field" id="itemOtherWrap" style="display:none;"><label>Item name</label><input type="text" id="itemOther" placeholder="e.g. Scissor lift" /></div>
+      <div class="row2">
+        <div class="field"><label>Operator</label><input type="text" id="operator" placeholder="Your name" /></div>
+        <div class="field"><label>Hours / odometer</label><input type="text" id="hours" placeholder="Optional" /></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:10px;">Pre-start checklist</label>
+      <div id="checks"></div>
+    </div>
+
+    <div class="card">
+      <div class="field"><label>Defects / notes</label><textarea id="defects" placeholder="Anything not OK, or leave blank"></textarea></div>
+      <div class="row2">
+        <div class="field"><label>Result</label><select id="result"><option value="Pass">Pass — safe to use</option><option value="Fail">Fail — do not use / tag out</option></select></div>
+        <div class="field"><label>Signed (type name)</label><input type="text" id="signedBy" placeholder="Operator name" /></div>
+      </div>
+      <button class="btn" id="submitBtn">Save check to this job</button>
+      <div id="msg" class="hide"></div>
+    </div>
+  </div>
+
+  <div id="done" class="hide">
+    <div class="card ok-screen">
+      <div class="tick">✓</div>
+      <h1>Check saved</h1>
+      <p class="sub" id="doneMsg">The pre-start check is attached to this job.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;">
+        <button class="btn alt" style="width:auto;" id="anotherBtn">Log another</button>
+        <a class="btn" style="width:auto;text-decoration:none;display:inline-block;" id="toJob">Back to the plan</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SB_URL="https://qewsprapekvvtlsbyaed.supabase.co";
+const SB_KEY="sb_publishable_otdr8vJvfweQ8yjlYD8rvg_LS1EvYqT";
+const sb=supabase.createClient(SB_URL,SB_KEY);
+const CHECK_ITEMS=[
+ "No visible damage, leaks or loose parts",
+ "Controls & emergency stop working",
+ "Warning devices (horn / beacon / alarm) working",
+ "Guards & safety devices fitted",
+ "Tyres / tracks / outriggers sound (if fitted)",
+ "Fluid / fuel / battery levels OK",
+ "Operator holds the required licence / ticket",
+ "Inspection tag / certification current"
+];
+const jobId=new URLSearchParams(location.search).get("job");
+const state={checks:CHECK_ITEMS.map(()=>true)};
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function show(id,on){document.getElementById(id).classList.toggle("hide",!on);}
+
+document.getElementById("backLink").href="sssp-builder.html?job="+jobId;
+document.getElementById("toJob").href="sssp-builder.html?job="+jobId;
+
+function renderChecks(){
+  document.getElementById("checks").innerHTML=CHECK_ITEMS.map((t,i)=>`<div class="chk"><span class="lbl">${esc(t)}</span><span class="seg"><button class="ok ${state.checks[i]?'on':''}" onclick="setChk(${i},true)">OK</button><button class="no ${!state.checks[i]?'on':''}" onclick="setChk(${i},false)">Not OK</button></span></div>`).join("");
+}
+function setChk(i,v){state.checks[i]=v;renderChecks();if(!v){document.getElementById("result").value="Fail";}}
+
+async function init(){
+  if(!jobId){document.getElementById("loading").textContent="No job specified.";return;}
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){location.href="app.html";return;}
+  const {data,error}=await sb.from("jobs").select("title,plan").eq("id",jobId).single();
+  if(error||!data){document.getElementById("loading").textContent="Couldn't open this job.";return;}
+  document.getElementById("jobName").textContent=data.title||"Job";
+  const equip=(data.plan&&data.plan.equip)||[];
+  const opts=equip.filter(e=>e&&e.item).map(e=>`<option>${esc(e.item)}</option>`).join("");
+  document.getElementById("item").innerHTML=opts+`<option value="__other">Other / not listed…</option>`;
+  document.getElementById("item").addEventListener("change",e=>{document.getElementById("itemOtherWrap").style.display=e.target.value==="__other"?"":"none";});
+  if(!opts){document.getElementById("item").value="__other";document.getElementById("itemOtherWrap").style.display="";}
+  document.getElementById("date").value=new Date().toISOString().slice(0,10);
+  renderChecks();
+  show("loading",false);show("form",true);
+}
+document.getElementById("submitBtn").addEventListener("click",async()=>{
+  const itemSel=document.getElementById("item").value;
+  const item=itemSel==="__other"?document.getElementById("itemOther").value.trim():itemSel;
+  const operator=document.getElementById("operator").value.trim();
+  const msg=document.getElementById("msg");
+  if(!item){msg.className="err";msg.textContent="Pick or name the plant item.";show("msg",true);return;}
+  if(!operator){msg.className="err";msg.textContent="Enter the operator's name.";show("msg",true);return;}
+  const btn=document.getElementById("submitBtn");btn.disabled=true;btn.textContent="Saving…";
+  const failed=CHECK_ITEMS.filter((t,i)=>!state.checks[i]);
+  const payload={item,date:document.getElementById("date").value,operator,hours:document.getElementById("hours").value.trim(),
+    checklist:CHECK_ITEMS.map((t,i)=>({item:t,ok:state.checks[i]})),failed,
+    defects:document.getElementById("defects").value.trim(),result:document.getElementById("result").value,
+    signedBy:document.getElementById("signedBy").value.trim()||operator};
+  const {data:{session}}=await sb.auth.getSession();
+  const {error}=await sb.from("records").insert({job_id:jobId,type:"prestart_check",payload,created_by:session.user.id});
+  btn.disabled=false;btn.textContent="Save check to this job";
+  if(error){msg.className="err";msg.textContent="Couldn't save: "+error.message;show("msg",true);return;}
+  document.getElementById("doneMsg").textContent=item+" — "+payload.result+" — saved to "+(document.getElementById("jobName").textContent)+".";
+  show("form",false);show("done",true);window.scrollTo(0,0);
+});
+document.getElementById("anotherBtn").addEventListener("click",()=>location.reload());
+init();
+</script>
+</body>
+</html>

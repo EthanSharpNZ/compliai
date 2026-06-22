@@ -888,6 +888,37 @@ renderPreview();
     sb.from("jobs").update({ plan:state, title:title, site_address:state.site.address||null, updated_at:new Date().toISOString() })
       .eq("id",jobId).then(function(r){ setStatus(r.error?"Save failed":"Saved ✓"); });
   }
+  function injectDailyCheck(){
+    var bar=document.querySelector(".bar-actions");
+    if(!bar||document.getElementById("dailyCheckLink"))return;
+    var a=document.createElement("a");
+    a.id="dailyCheckLink"; a.href="check.html?job="+jobId; a.textContent="✓ Daily check";
+    a.style.cssText="color:#C3CDD2;text-decoration:none;font-size:12.5px;";
+    bar.insertBefore(a,bar.firstChild);
+  }
+  async function loadRecords(){
+    var r=await sb.from("records").select("payload,created_at").eq("job_id",jobId).eq("type","prestart_check").order("created_at",{ascending:false});
+    if(r.error)return;
+    renderRecords(r.data||[]);
+  }
+  function renderRecords(rows){
+    var doc=document.getElementById("doc"); if(!doc)return;
+    var sec=document.getElementById("dsecChecks");
+    if(!sec){
+      sec=document.createElement("div"); sec.className="dsec"; sec.id="dsecChecks";
+      var crew=null;
+      doc.querySelectorAll(".dsec").forEach(function(d){ if(!crew && /Crew sign-off/i.test(d.textContent)) crew=d; });
+      if(crew){ crew.parentNode.insertBefore(sec,crew); }
+      else { var body=doc.querySelector(".doc-body"); if(body) body.appendChild(sec); }
+    }
+    if(!rows.length){ sec.style.display="none"; sec.innerHTML=""; return; }
+    sec.style.display="";
+    var html='<div class="dsec-h"><span class="n mono">✓</span><span class="t display">Daily pre-start checks</span></div>';
+    html+='<table class="hazt"><thead><tr><th>Date</th><th>Plant</th><th>Operator</th><th>Result</th><th>Defects</th></tr></thead><tbody>';
+    html+=rows.map(function(row){var p=row.payload||{};return '<tr><td>'+esc(p.date||"—")+'</td><td>'+esc(p.item||"—")+'</td><td>'+esc(p.operator||"—")+'</td><td>'+esc(p.result||"—")+'</td><td>'+esc(p.defects||"—")+'</td></tr>';}).join("");
+    html+='</tbody></table>';
+    sec.innerHTML=html;
+  }
   async function start(){
     sb=supabase.createClient(SB_URL,SB_KEY);
     setStatus("Loading…");
@@ -898,6 +929,8 @@ renderPreview();
     if(res.data.plan && Object.keys(res.data.plan).length){ try{ hydrate(res.data.plan); }catch(e){} }
     loading=false;
     setStatus("Saved ✓");
+    injectDailyCheck();
+    loadRecords();
     var orig=renderPreview;
     renderPreview=function(){ orig(); scheduleSave(); };
   }
